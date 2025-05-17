@@ -2,16 +2,18 @@ package com.example.mziurifinalprojectadventurer;
 
 public class Adventurer {
     private String name, adventurer_class;
-    private int level, exp, hp, attack;
+    private int level, exp, hp, attack, maxHp;
     private int basicPotions, maxPotions;
 
     public Adventurer() {
         this.level = 1;
         this.exp = 0;
-        this.hp = 100;
-        this.attack = 10;
         this.basicPotions = 10;
         this.maxPotions = 5;
+    }
+
+    public int getMaxHp() {
+        return maxHp;
     }
 
     public String getName() {
@@ -76,5 +78,9 @@ public class Adventurer {
 
     public void setMaxPotions(int maxPotions) {
         this.maxPotions = maxPotions;
+    }
+
+    public void setMaxHp(int maxHp) {
+        this.maxHp = maxHp;
     }
 }

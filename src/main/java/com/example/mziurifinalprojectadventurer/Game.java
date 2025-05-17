@@ -1,8 +1,6 @@
 package com.example.mziurifinalprojectadventurer;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -29,8 +27,8 @@ public class Game extends Application {
         String url = "jdbc:postgresql://localhost:5432/Adventure";
         String user = "postgres";
         String password = Initiate();
-        Login_page loginPage = new Login_page();
-        Adventurer currentAdventurer = loginPage.authorisation(url, user, password);
+        LoginPage loginPage = new LoginPage(url, user, password);
+        loginPage.authorisation();
     }
 
     public static void main(String[] args) {

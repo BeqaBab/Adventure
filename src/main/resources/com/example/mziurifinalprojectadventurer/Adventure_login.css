@@ -1,0 +1,242 @@
+/* Fantasy Adventure Game - Dark Mode CSS Theme */
+
+/* Import custom fantasy fonts */
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700&display=swap');
+
+/* Root styles and variables */
+.root {
+    -fx-background-size: cover;
+    -fx-font-family: 'MedievalSharp', cursive;
+    -fx-base: #1a1a1a;
+
+    /* Custom color variables */
+    -fx-dark-base: #121212;
+    -fx-dark-accent: #1f1f1f;
+    -fx-medium-accent: #323232;
+    -fx-light-accent: #454545;
+    -fx-highlight: #7e57c2;
+    -fx-highlight-light: #b085f5;
+    -fx-gold-accent: #c9b037;
+    -fx-text-primary: #e1e1e1;
+    -fx-text-secondary: #b0b0b0;
+}
+
+/* Label styling */
+.label {
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-primary;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 2, 0, 0, 1);
+}
+
+/* Title label (if needed) */
+.title-label {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-gold-accent;
+    -fx-effect: dropshadow(gaussian, rgba(126,87,194,0.3), 10, 0, 0, 0);
+    -fx-padding: 0 0 10 0;
+}
+
+/* Status/message label */
+#messageLabel {
+    -fx-font-size: 12px;
+    -fx-text-fill: -fx-gold-accent;
+    -fx-padding: 5;
+}
+
+/* Text field styling */
+.text-field, .password-field {
+    -fx-background-color: rgba(40, 40, 40, 0.85);
+    -fx-background-radius: 5;
+    -fx-border-color: -fx-medium-accent;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-padding: 8;
+    -fx-font-size: 13px;
+    -fx-text-fill: -fx-text-primary;
+    -fx-prompt-text-fill: -fx-text-secondary;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-background-color: rgba(50, 50, 50, 0.9);
+    -fx-border-color: -fx-highlight;
+}
+
+/* Button styling */
+.button {
+    -fx-background-color: linear-gradient(to bottom, -fx-medium-accent, -fx-dark-accent);
+    -fx-background-radius: 5;
+    -fx-border-color: -fx-light-accent;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-primary;
+    -fx-padding: 8 15;
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.3), 2, 0, 0, 1);
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-medium-accent, 10%), derive(-fx-dark-accent, 10%));
+    -fx-border-color: -fx-highlight;
+    -fx-effect: dropshadow(three-pass-box, rgba(126,87,194,0.5), 5, 0, 0, 0);
+    -fx-cursor: hand;
+}
+
+.button:pressed {
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-dark-accent, -5%), derive(-fx-medium-accent, -5%));
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.5), 4, 0, 0, 0);
+}
+
+/* Register button specific styling */
+#registerButton {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #37474f, #263238);
+    -fx-border-color: #455a64;
+}
+
+#registerButton:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, derive(#37474f, 10%), derive(#263238, 10%));
+    -fx-border-color: -fx-highlight;
+}
+
+/* Login button specific styling */
+#loginButton {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #4a148c, #311b92);
+    -fx-border-color: #673ab7;
+}
+
+#loginButton:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, derive(#4a148c, 10%), derive(#311b92, 10%));
+    -fx-border-color: -fx-highlight-light;
+}
+
+/* Choice Box styling */
+.choice-box {
+    -fx-background-color: #2a2a2a;
+    -fx-mark-color: -fx-gold-accent;
+    -fx-background-radius: 5;
+    -fx-border-color: #454545;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-padding: 0;
+    -fx-font-size: 13px;
+    -fx-font-family: 'Cinzel', serif;
+}
+
+.choice-box .label {
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: bold;
+}
+
+.choice-box:hover {
+    -fx-background-color: #3a3a3a;
+    -fx-border-color: -fx-highlight;
+}
+
+.choice-box:showing {
+    -fx-border-color: -fx-highlight-light;
+}
+
+.choice-box .context-menu {
+    -fx-background-color: #2a2a2a;
+    -fx-background-radius: 5;
+    -fx-border-color: #454545;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 8, 0, 0, 2);
+}
+
+.choice-box .menu-item {
+    -fx-padding: 6 8;
+}
+
+.choice-box .menu-item > .label {
+    -fx-text-fill: -fx-text-primary;
+}
+
+.choice-box .menu-item:focused {
+    -fx-background-color: -fx-highlight;
+}
+
+.choice-box .menu-item:focused > .label {
+    -fx-text-fill: #ffffff;
+}
+
+/* Class-specific styling for the choice box items */
+.choice-box .menu-item.warrior {
+    -fx-padding: 6 8 6 32;
+    -fx-background-image: url("https://i.postimg.cc/T1QNbDVq/sword-dark.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: 6 center;
+    -fx-background-size: 20px;
+}
+
+.choice-box .menu-item.mage {
+    -fx-padding: 6 8 6 32;
+    -fx-background-image: url("https://i.postimg.cc/mrvpJR5m/staff-dark.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: 6 center;
+    -fx-background-size: 20px;
+}
+
+.choice-box .menu-item.assassin {
+    -fx-padding: 6 8 6 32;
+    -fx-background-image: url("https://i.postimg.cc/yd6nL23Q/dagger-dark.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: 6 center;
+    -fx-background-size: 20px;
+}
+
+/* Main VBox styling */
+.vbox {
+    -fx-spacing: 12;
+    -fx-padding: 25;
+    -fx-alignment: center;
+    -fx-background-color: rgba(25, 25, 30, 0.7);
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(70, 70, 80, 0.6);
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 15, 0, 0, 0);
+}
+
+/* Scene styling */
+.scene {
+    -fx-font-family: 'MedievalSharp', cursive;
+}
+
+/* Custom scrollbar styling */
+.scroll-bar {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #323232;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #454545;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #555555;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: #323232;
+}
+
+/* Tooltip styling */
+.tooltip {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: -fx-text-primary;
+    -fx-border-color: -fx-highlight;
+    -fx-border-width: 1;
+    -fx-font-size: 12px;
+}
+
+/* Magic glow effect for labels - can be applied to specific elements */
+.magic-glow {
+    -fx-effect: dropshadow(gaussian, rgba(126,87,194,0.7), 10, 0, 0, 0);
+}
