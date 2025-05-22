@@ -3,7 +3,7 @@ package com.example.mziurifinalprojectadventurer;
 public class Enemy {
     private String name;
     private int damage;
-    int hp;
+    private int hp;
     private int dropBasic;
     private int dropMax;
     private int dropExp;

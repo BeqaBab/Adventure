@@ -45,9 +45,9 @@ public class Gameplay {
     }
 
     public void Game() throws SQLException {
-            Enemy currentEnemy = chooseEnemy();
+        final Enemy[] currentEnemy = {chooseEnemy()};
             Label adventurerLabel = new Label("HP: " + currentAdventurer.getHp() + " Damage: " + currentAdventurer.getAttack());
-            Label currentMonsterShortLabel = new Label("Monster: " + currentEnemy.getName() + " HP: " + currentEnemy.getHp());
+            Label currentMonsterShortLabel = new Label("Monster: " + currentEnemy[0].getName() + " HP: " + currentEnemy[0].getHp());
             Button attackButton = new Button("Attack");
             Button showEnemyInfoButton = new Button("Enemy stats");
             Button useAnItemButton = new Button("Use An Item");
@@ -65,19 +65,37 @@ public class Gameplay {
                 if(criticalHitNumber >= 0.9){
                     damage *= 2;
                 }
-                currentEnemy.setHp(currentEnemy.getHp() - damage);
-                currentAdventurer.setHp(currentAdventurer.getHp() - currentEnemy.getDamage());
-                currentMonsterShortLabel.setText("Monster: " + currentEnemy.getName() + " HP: " + currentEnemy.getHp());
+                currentEnemy[0].setHp(currentEnemy[0].getHp() - damage);
+                currentAdventurer.setHp(currentAdventurer.getHp() - currentEnemy[0].getDamage());
+                if(currentAdventurer.getHp() <= 0){
+                    Label loseLabel = new Label("Unfortunately, you lost!");
+                    VBox loseLayout = new VBox(loseLabel);
+                    primaryStage.getScene().setRoot(loseLayout);
+                }   else if(currentEnemy[0].getHp() <= 0){
+                    try {
+                        currentEnemy[0] = chooseEnemy();
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    Label winLabel = new Label("Congratulations, you have defeated " + currentEnemy[0].getName());
+                    Button continueButton = new Button("Next monster ->");
+                    continueButton.setOnAction(event -> {
+                        primaryStage.getScene().setRoot(mainRoot);
+                    });
+                    VBox winLayout = new VBox(10, winLabel, continueButton);
+                    primaryStage.getScene().setRoot(winLayout);
+                }
+                currentMonsterShortLabel.setText("Monster: " + currentEnemy[0].getName() + " HP: " + currentEnemy[0].getHp());
                 adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " Damage: " + currentAdventurer.getAttack());
             });
             showEnemyInfoButton.setOnAction(e -> {
                 Label InfoLabel = new Label(
-                        "Name: " + currentEnemy.getName() + "\n"
-                        + "Damage: " + currentEnemy.getDamage() + "\n"
-                        + "HP: " + currentEnemy.getHp() + "\n"
-                        + "Basic potions drop: " + currentEnemy.getDropBasic() + "\n"
-                        + "Max potions drop: " + currentEnemy.getDropMax() + "\n"
-                        + "Drop exp: " + currentEnemy.getDropMax() + "\n"
+                        "Name: " + currentEnemy[0].getName() + "\n"
+                        + "Damage: " + currentEnemy[0].getDamage() + "\n"
+                        + "HP: " + currentEnemy[0].getHp() + "\n"
+                        + "Basic potions drop: " + currentEnemy[0].getDropBasic() + "\n"
+                        + "Max potions drop: " + currentEnemy[0].getDropMax() + "\n"
+                        + "Drop exp: " + currentEnemy[0].getDropMax() + "\n"
                 );
                 Button backButton = new Button("<- Back");
                 backButton.setOnAction(action -> {
