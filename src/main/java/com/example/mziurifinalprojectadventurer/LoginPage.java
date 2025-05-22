@@ -1,6 +1,7 @@
 package com.example.mziurifinalprojectadventurer;
 
 import javafx.collections.FXCollections;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
@@ -16,6 +17,7 @@ public class LoginPage {
     String url, user, password;
     private Stage primaryStage;
     private VBox currentRoot;
+    private Adventurer currentAdventurer = new Adventurer();
 
     public LoginPage(String url, String user, String password, Stage primaryStage) {
         this.url = url;
@@ -28,51 +30,57 @@ public class LoginPage {
         Adventurer newAdventurer = new Adventurer();
         String username = registrationNameField.getText();
         String userPassword = registrationPasswordField.getText();
-        String adventurerClass = registrationClassChoiceBox.getValue();
-        newAdventurer.setName(username);
-        try {
-            Connection connection = DriverManager.getConnection(url, user, password);
-            switch (adventurerClass) {
-                case "Warrior":
-                    newAdventurer.setMaxHp(80);
-                    newAdventurer.setAttack(20);
-                    newAdventurer.setAdventurer_class("Warrior");
-                    break;
-                case "Mage":
-                    newAdventurer.setMaxHp(100);
-                    newAdventurer.setAttack(15);
-                    newAdventurer.setAdventurer_class("Mage");
-                    break;
-                case "Assassin":
-                    newAdventurer.setMaxHp(150);
-                    newAdventurer.setAttack(10);
-                    newAdventurer.setAdventurer_class("Assassin");
-                    break;
-                default:
-                    newAdventurer.setMaxHp(90);
-                    newAdventurer.setAttack(5);
-                    newAdventurer.setAdventurer_class("Basic");
-                    break;
+        String adventurerClass;
+        if(registrationClassChoiceBox.getValue() == null){
+            registrationMessageLabel.setText("Please choose a class");
+        }else{
+            adventurerClass = registrationClassChoiceBox.getValue();
+            newAdventurer.setName(username);
+            try {
+                Connection connection = DriverManager.getConnection(url, user, password);
+                switch (adventurerClass) {
+                    case "Warrior":
+                        newAdventurer.setMaxHp(80);
+                        newAdventurer.setAttack(20);
+                        newAdventurer.setAdventurerClass("Warrior");
+                        break;
+                    case "Mage":
+                        newAdventurer.setMaxHp(100);
+                        newAdventurer.setAttack(15);
+                        newAdventurer.setAdventurerClass("Mage");
+                        break;
+                    case "Assassin":
+                        newAdventurer.setMaxHp(150);
+                        newAdventurer.setAttack(10);
+                        newAdventurer.setAdventurerClass("Assassin");
+                        break;
+                    default:
+                        newAdventurer.setMaxHp(90);
+                        newAdventurer.setAttack(5);
+                        newAdventurer.setAdventurerClass("Basic");
+                        break;
+
+                }
+                String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_level, adventurer_exp, adventurer_HP, adventurer_attack, basic_potions, max_potions, adventurer_class, adventurer_password, max_health) VALUES(?, 1, 0, ?, ?, 10, 5, ?, ?, ?);";
+                PreparedStatement stmt = connection.prepareStatement(insertQuery);
+                stmt.setString(1, newAdventurer.getName());
+                stmt.setInt(2, newAdventurer.getMaxHp());
+                stmt.setInt(3, newAdventurer.getAttack());
+                stmt.setString(4, newAdventurer.getAdventurerClass());
+                stmt.setLong(5, hash(userPassword));
+                stmt.setInt(6, newAdventurer.getMaxHp());
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    registrationMessageLabel.setText("User added successfully!");
+                } else registrationMessageLabel.setText("User couldn't be added.");
+            } catch (SQLException ex) {
+                registrationMessageLabel.setText("User couldn't be added, please choose a different name or try again later");
             }
-            String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_level, adventurer_exp, adventurer_HP, adventurer_attack, basic_potions, max_potions, adventurer_class, adventurer_password, max_health) VALUES(?, 1, 0, ?, ?, 10, 5, ?, ?, ?);";
-            PreparedStatement stmt = connection.prepareStatement(insertQuery);
-            stmt.setString(1, newAdventurer.getName());
-            stmt.setInt(2, newAdventurer.getMaxHp());
-            stmt.setInt(3, newAdventurer.getAttack());
-            stmt.setString(4, newAdventurer.getAdventurer_class());
-            stmt.setLong(5, hash(userPassword));
-            stmt.setInt(6, newAdventurer.getMaxHp());
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                registrationMessageLabel.setText("User added successfully!");
-            } else registrationMessageLabel.setText("User couldn't be added.");
-        } catch (SQLException ex) {
-            registrationMessageLabel.setText("User couldn't be added, please choose a different name or try again later");
+            registrationPasswordField.clear();
         }
-        registrationPasswordField.clear();
     }
 
-    private void login() {
+    private void login() throws SQLException {
         String username = loginNameField.getText();
         String userPassword = loginPasswordField.getText();
         String adventurerClass = loginClassChoiceBox.getValue();
@@ -92,11 +100,30 @@ public class LoginPage {
                 }
             }
             if (!wasFound) loginMessageLabel.setText("Wrong password or class.");
+            else{
+                insertQuery = "SELECT * FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?;";
+                stmt = connection.prepareStatement(insertQuery);
+                stmt.setString(1, username);
+                stmt.setString(2, adventurerClass);
+                rs = stmt.executeQuery();
+                while(rs.next()){
+                    currentAdventurer.setName(username);
+                    currentAdventurer.setLevel(rs.getInt("adventurer_level"));
+                    currentAdventurer.setExp(rs.getInt("adventurer_exp"));
+                    currentAdventurer.setHp(rs.getInt("adventurer_hp"));
+                    currentAdventurer.setAttack(rs.getInt("adventurer_attack"));
+                    currentAdventurer.setBasicPotions(rs.getInt("basic_potions"));
+                    currentAdventurer.setMaxPotions(rs.getInt("max_potions"));
+                    currentAdventurer.setAdventurerClass(rs.getString("adventurer_class"));
+                    currentAdventurer.setMaxHp(rs.getInt("max_health"));
+                }
+            }
             loginPasswordField.clear();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
-
+        Gameplay gameplay = new Gameplay(primaryStage, currentAdventurer, url, user, password);
+        gameplay.Game();
     }
 
     public static long hash(String s) {
@@ -136,13 +163,19 @@ public class LoginPage {
         registerButton.setOnAction(e -> register());
 
         Button loginButton = new Button("Login");
-        loginButton.setOnAction(e -> login());
+        loginButton.setOnAction(e -> {
+            try {
+                login();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
-        Label registrationSuggestion = new Label("Don't have an account?");
-        Button switchToRegister = new Button("Register here");
+        Label registrationSuggestionLabel = new Label("Don't have an account?");
+        Button switchToRegisterButton = new Button("Register here");
 
-        Label loginSuggestion = new Label("Already have an account?");
-        Button switchToLogin = new Button("Login here");
+        Label loginSuggestionLabel = new Label("Already have an account?");
+        Button switchToLoginButton = new Button("Login here");
 
         VBox loginRoot = new VBox(10);
         loginRoot.getStyleClass().add("vbox");
@@ -151,9 +184,9 @@ public class LoginPage {
                 loginClassLabel, loginClassChoiceBox,
                 loginPasswordLabel, loginPasswordField,
                 loginMessageLabel, loginButton,
-                registrationSuggestion, switchToRegister
+                registrationSuggestionLabel, switchToRegisterButton
         );
-        loginRoot.setPadding(new javafx.geometry.Insets(20, 20, 20, 20));
+        loginRoot.setPadding(new Insets(20, 20, 20, 20));
 
         VBox registerRoot = new VBox(10);
         registerRoot.getStyleClass().add("vbox");
@@ -162,16 +195,16 @@ public class LoginPage {
                 registrationClassLabel, registrationClassChoiceBox,
                 registrationPasswordLabel, registrationPasswordField,
                 registrationMessageLabel, registerButton,
-                loginSuggestion, switchToLogin
+                loginSuggestionLabel, switchToLoginButton
         );
-        registerRoot.setPadding(new javafx.geometry.Insets(20, 20, 20, 20));
+        registerRoot.setPadding(new Insets(20, 20, 20, 20));
 
-        switchToRegister.setOnAction(e -> {
+        switchToRegisterButton.setOnAction(e -> {
             primaryStage.getScene().setRoot(registerRoot);
             currentRoot = registerRoot;
         });
 
-        switchToLogin.setOnAction(e -> {
+        switchToLoginButton.setOnAction(e -> {
             primaryStage.getScene().setRoot(loginRoot);
             currentRoot = loginRoot;
         });

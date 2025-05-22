@@ -1,7 +1,7 @@
 package com.example.mziurifinalprojectadventurer;
 
 public class Adventurer {
-    private String name, adventurer_class;
+    private String name, adventurerClass;
     private int level, exp, hp, attack, maxHp;
     private int basicPotions, maxPotions;
 
@@ -20,8 +20,8 @@ public class Adventurer {
         return name;
     }
 
-    public String getAdventurer_class() {
-        return adventurer_class;
+    public String getAdventurerClass() {
+        return adventurerClass;
     }
 
     public int getLevel() {
@@ -52,8 +52,8 @@ public class Adventurer {
         this.name = name;
     }
 
-    public void setAdventurer_class(String adventurer_class) {
-        this.adventurer_class = adventurer_class;
+    public void setAdventurerClass(String adventurer_class) {
+        this.adventurerClass = adventurer_class;
     }
 
     public void setLevel(int level) {
