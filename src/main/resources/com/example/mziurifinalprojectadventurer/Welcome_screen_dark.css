@@ -1,0 +1,116 @@
+/* Fantasy Adventure Game - Welcome Screen Dark Mode Theme */
+
+/* Import custom fantasy fonts */
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700&display=swap');
+
+/* Root styles and variables */
+.root {
+    -fx-background-size: cover;
+    -fx-font-family: 'MedievalSharp', cursive;
+    -fx-base: #1a1a1a;
+
+    /* Custom color variables */
+    -fx-dark-base: #121212;
+    -fx-dark-accent: #1f1f1f;
+    -fx-medium-accent: #323232;
+    -fx-light-accent: #454545;
+    -fx-highlight: #7e57c2;
+    -fx-highlight-light: #b085f5;
+    -fx-gold-accent: #c9b037;
+    -fx-text-primary: #e1e1e1;
+    -fx-text-secondary: #b0b0b0;
+}
+
+/* Welcome Label styling - special title for the welcome screen */
+.label {
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-gold-accent;
+    -fx-effect: dropshadow(gaussian, rgba(126,87,194,0.6), 15, 0, 0, 0);
+    -fx-padding: 20 0 10 0;
+    -fx-alignment: center;
+}
+
+/* Start Button styling */
+.button {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #4a148c, #311b92);
+    -fx-background-radius: 8;
+    -fx-border-color: #673ab7;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -fx-text-primary;
+    -fx-padding: 15 30;
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.3), 2, 0, 0, 1);
+    -fx-cursor: hand;
+    -fx-alignment: center;
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, derive(#4a148c, 10%), derive(#311b92, 10%));
+    -fx-border-color: -fx-highlight-light;
+    -fx-effect: dropshadow(three-pass-box, rgba(126,87,194,0.8), 10, 0, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-cursor: hand;
+}
+
+.button:pressed {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, derive(#311b92, -5%), derive(#4a148c, -5%));
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.5), 4, 0, 0, 0);
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+}
+
+/* Main VBox styling */
+.vbox {
+    -fx-spacing: 30;
+    -fx-padding: 40;
+    -fx-alignment: center;
+    -fx-background-color: rgba(25, 25, 30, 0.7);
+    -fx-background-radius: 15;
+    -fx-border-color: rgba(70, 70, 80, 0.6);
+    -fx-border-width: 3;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 20, 0, 0, 0);
+}
+
+/* Scene styling */
+.scene {
+    -fx-font-family: 'MedievalSharp', cursive;
+}
+
+/* Decorative elements */
+.decorative-top {
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: top center;
+    -fx-background-size: 280px;
+    -fx-min-height: 50px;
+}
+
+.decorative-bottom {
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: bottom center;
+    -fx-background-size: 280px;
+    -fx-min-height: 50px;
+}
+
+/* Magic glow effect for labels - can be applied to specific elements */
+.magic-glow {
+    -fx-effect: dropshadow(gaussian, rgba(126,87,194,0.7), 15, 0, 0, 0);
+}
+
+/* Custom animation for the welcome text */
+@keyframes pulse {
+    0% { -fx-effect: dropshadow(gaussian, rgba(201,176,55,0.3), 10, 0, 0, 0); }
+    50% { -fx-effect: dropshadow(gaussian, rgba(201,176,55,0.8), 20, 0, 0, 0); }
+    100% { -fx-effect: dropshadow(gaussian, rgba(201,176,55,0.3), 10, 0, 0, 0); }
+}
+
+#welcomeLabel {
+    -fx-text-fill: -fx-gold-accent;
+    animation: pulse 3s infinite;
+}

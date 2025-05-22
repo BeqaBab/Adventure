@@ -8,30 +8,31 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.util.Objects;
 
-
 public class LoginPage {
     String url, user, password;
+    private Stage primaryStage;
+    private VBox currentRoot;
 
-    public LoginPage(String url, String user, String password) {
+    public LoginPage(String url, String user, String password, Stage primaryStage) {
         this.url = url;
         this.user = user;
         this.password = password;
+        this.primaryStage = primaryStage;
     }
 
-    private void register(){
+    private void register() {
         Adventurer newAdventurer = new Adventurer();
-        String username = nameField.getText();
-        String userPassword = passwordField.getText();
-        String adventurerClass = classChoiceBox.getValue();
+        String username = registrationNameField.getText();
+        String userPassword = registrationPasswordField.getText();
+        String adventurerClass = registrationClassChoiceBox.getValue();
         newAdventurer.setName(username);
         try {
             Connection connection = DriverManager.getConnection(url, user, password);
-            switch(adventurerClass){
+            switch (adventurerClass) {
                 case "Warrior":
                     newAdventurer.setMaxHp(80);
                     newAdventurer.setAttack(20);
@@ -63,18 +64,19 @@ public class LoginPage {
             stmt.setInt(6, newAdventurer.getMaxHp());
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
-                messageLabel.setText("User added successfully!");
-            } else messageLabel.setText("User couldn't be added.");
+                registrationMessageLabel.setText("User added successfully!");
+            } else registrationMessageLabel.setText("User couldn't be added.");
         } catch (SQLException ex) {
-            throw new RuntimeException("Something's wrong");
-        }   passwordField.clear();
+            registrationMessageLabel.setText("User couldn't be added, please choose a different name or try again later");
+        }
+        registrationPasswordField.clear();
     }
 
-    private void login(){
-        String username = nameField.getText();
-        String userPassword = passwordField.getText();
-        String adventurerClass = classChoiceBox.getValue();
-        try{
+    private void login() {
+        String username = loginNameField.getText();
+        String userPassword = loginPasswordField.getText();
+        String adventurerClass = loginClassChoiceBox.getValue();
+        try {
             Connection connection = DriverManager.getConnection(url, user, password);
             boolean wasFound = false;
             String insertQuery = "SELECT adventurer_password FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?;";
@@ -82,17 +84,19 @@ public class LoginPage {
             stmt.setString(1, username);
             stmt.setString(2, adventurerClass);
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 long password = rs.getLong("adventurer_password");
-                if(password == hash(userPassword)){
-                    messageLabel.setText("Logged in successfully!");
+                if (password == hash(userPassword)) {
+                    loginMessageLabel.setText("Logged in successfully!");
                     wasFound = true;
                 }
-            }   if(!wasFound)   messageLabel.setText("Wrong password or class.");
-            passwordField.clear();
+            }
+            if (!wasFound) loginMessageLabel.setText("Wrong password or class.");
+            loginPasswordField.clear();
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
+
     }
 
     public static long hash(String s) {
@@ -107,44 +111,74 @@ public class LoginPage {
         return hashValue;
     }
 
-    Label userLabel = new Label("Name:");
-    Label classLabel = new Label("Class:");
-    Label passwordLabel = new Label("Password:");
+    Label loginUserLabel = new Label("Name:");
+    Label loginClassLabel = new Label("Class:");
+    Label loginPasswordLabel = new Label("Password:");
+    Label loginMessageLabel = new Label();
 
-    Label messageLabel = new Label();
+    Label registrationUserLabel = new Label("Name:");
+    Label registrationClassLabel = new Label("Class:");
+    Label registrationPasswordLabel = new Label("Password:");
+    Label registrationMessageLabel = new Label();
 
-    TextField nameField = new TextField();
-    PasswordField passwordField = new PasswordField();
+    TextField loginNameField = new TextField();
+    PasswordField loginPasswordField = new PasswordField();
 
     String[] classes = {"Warrior", "Mage", "Assassin"};
-    ChoiceBox<String> classChoiceBox =  new ChoiceBox<>(FXCollections.observableArrayList(classes));
+    ChoiceBox<String> loginClassChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(classes));
+    ChoiceBox<String> registrationClassChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(classes));
 
-    void authorisation(){
+    TextField registrationNameField = new TextField();
+    PasswordField registrationPasswordField = new PasswordField();
 
-        VBox root = getVBox();
-        root.getStyleClass().add("vbox");
-
-        Scene scene = new Scene(root, 300, 500);
-        Stage stage = new Stage();
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Adventure_login.css")).toExternalForm());
-        stage.setScene(scene);
-        stage.setTitle("Login Page");
-        stage.show();
-    }
-
-    @NotNull
-    private VBox getVBox() {
+    void authorisation() {
         Button registerButton = new Button("Register");
         registerButton.setOnAction(e -> register());
 
         Button loginButton = new Button("Login");
         loginButton.setOnAction(e -> login());
 
-        loginButton.setId("loginButton");
-        registerButton.setId("registerButton");
+        Label registrationSuggestion = new Label("Don't have an account?");
+        Button switchToRegister = new Button("Register here");
 
-        VBox root = new VBox(10, userLabel, nameField, classLabel, classChoiceBox, passwordLabel, passwordField, loginButton, registerButton, messageLabel);
-        root.setPadding(new javafx.geometry.Insets(20, 20, 20, 20));
-        return root;
+        Label loginSuggestion = new Label("Already have an account?");
+        Button switchToLogin = new Button("Login here");
+
+        VBox loginRoot = new VBox(10);
+        loginRoot.getStyleClass().add("vbox");
+        loginRoot.getChildren().addAll(
+                loginUserLabel, loginNameField,
+                loginClassLabel, loginClassChoiceBox,
+                loginPasswordLabel, loginPasswordField,
+                loginMessageLabel, loginButton,
+                registrationSuggestion, switchToRegister
+        );
+        loginRoot.setPadding(new javafx.geometry.Insets(20, 20, 20, 20));
+
+        VBox registerRoot = new VBox(10);
+        registerRoot.getStyleClass().add("vbox");
+        registerRoot.getChildren().addAll(
+                registrationUserLabel, registrationNameField,
+                registrationClassLabel, registrationClassChoiceBox,
+                registrationPasswordLabel, registrationPasswordField,
+                registrationMessageLabel, registerButton,
+                loginSuggestion, switchToLogin
+        );
+        registerRoot.setPadding(new javafx.geometry.Insets(20, 20, 20, 20));
+
+        switchToRegister.setOnAction(e -> {
+            primaryStage.getScene().setRoot(registerRoot);
+            currentRoot = registerRoot;
+        });
+
+        switchToLogin.setOnAction(e -> {
+            primaryStage.getScene().setRoot(loginRoot);
+            currentRoot = loginRoot;
+        });
+
+        currentRoot = loginRoot;
+        Scene mainScene = new Scene(currentRoot, 500, 400);
+        mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Adventure_login.css")).toExternalForm());
+        primaryStage.setScene(mainScene);
     }
 }
