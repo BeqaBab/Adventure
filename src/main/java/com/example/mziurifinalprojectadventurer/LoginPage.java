@@ -26,7 +26,7 @@ public class LoginPage {
         this.primaryStage = primaryStage;
     }
 
-    private void register() {
+    private void register(TextField registrationNameField, TextField registrationPasswordField, Label registrationMessageLabel, ChoiceBox<String> registrationClassChoiceBox) {
         Adventurer newAdventurer = new Adventurer();
         String username = registrationNameField.getText();
         String userPassword = registrationPasswordField.getText();
@@ -80,7 +80,7 @@ public class LoginPage {
         }
     }
 
-    private void login() throws SQLException {
+    private void login(TextField loginNameField, TextField loginPasswordField, ChoiceBox<String> loginClassChoiceBox, Label loginMessageLabel) throws SQLException {
         String username = loginNameField.getText();
         String userPassword = loginPasswordField.getText();
         String adventurerClass = loginClassChoiceBox.getValue();
@@ -95,7 +95,6 @@ public class LoginPage {
             while (rs.next()) {
                 long password = rs.getLong("adventurer_password");
                 if (password == hash(userPassword)) {
-                    loginMessageLabel.setText("Logged in successfully!");
                     wasFound = true;
                 }
             }
@@ -138,34 +137,35 @@ public class LoginPage {
         return hashValue;
     }
 
-    Label loginUserLabel = new Label("Name:");
-    Label loginClassLabel = new Label("Class:");
-    Label loginPasswordLabel = new Label("Password:");
-    Label loginMessageLabel = new Label();
-
-    Label registrationUserLabel = new Label("Name:");
-    Label registrationClassLabel = new Label("Class:");
-    Label registrationPasswordLabel = new Label("Password:");
-    Label registrationMessageLabel = new Label();
-
-    TextField loginNameField = new TextField();
-    PasswordField loginPasswordField = new PasswordField();
-
-    String[] classes = {"Warrior", "Mage", "Assassin"};
-    ChoiceBox<String> loginClassChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(classes));
-    ChoiceBox<String> registrationClassChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(classes));
-
-    TextField registrationNameField = new TextField();
-    PasswordField registrationPasswordField = new PasswordField();
 
     void authorisation() {
+        Label loginUserLabel = new Label("Name:");
+        Label loginClassLabel = new Label("Class:");
+        Label loginPasswordLabel = new Label("Password:");
+        Label loginMessageLabel = new Label();
+
+        Label registrationUserLabel = new Label("Name:");
+        Label registrationClassLabel = new Label("Class:");
+        Label registrationPasswordLabel = new Label("Password:");
+        Label registrationMessageLabel = new Label();
+
+        TextField loginNameField = new TextField();
+        PasswordField loginPasswordField = new PasswordField();
+
+        String[] classes = {"Warrior", "Mage", "Assassin"};
+        ChoiceBox<String> loginClassChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(classes));
+        ChoiceBox<String> registrationClassChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(classes));
+
+        TextField registrationNameField = new TextField();
+        PasswordField registrationPasswordField = new PasswordField();
+
         Button registerButton = new Button("Register");
-        registerButton.setOnAction(e -> register());
+        registerButton.setOnAction(e -> register(registrationNameField, registrationPasswordField, registrationMessageLabel, registrationClassChoiceBox));
 
         Button loginButton = new Button("Login");
         loginButton.setOnAction(e -> {
             try {
-                login();
+                login(loginNameField, loginPasswordField, loginClassChoiceBox, loginMessageLabel);
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
@@ -202,15 +202,19 @@ public class LoginPage {
         switchToRegisterButton.setOnAction(e -> {
             primaryStage.getScene().setRoot(registerRoot);
             currentRoot = registerRoot;
+            registrationPasswordField.clear();
+            registrationNameField.clear();
         });
 
         switchToLoginButton.setOnAction(e -> {
             primaryStage.getScene().setRoot(loginRoot);
             currentRoot = loginRoot;
+            loginNameField.clear();
+            loginPasswordField.clear();
         });
 
         currentRoot = loginRoot;
-        Scene mainScene = new Scene(currentRoot, 500, 400);
+        Scene mainScene = new Scene(currentRoot, 600, 500);
         mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Adventure_login.css")).toExternalForm());
         primaryStage.setScene(mainScene);
     }

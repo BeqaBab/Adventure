@@ -1,0 +1,362 @@
+/* Enhanced Fantasy Adventure Game - Modern Dark Mode CSS Theme */
+
+/* Import custom fantasy fonts with additional weights */
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;600;700&family=Uncial+Antiqua&display=swap');
+
+/* Root styles and enhanced variables */
+.root {
+    -fx-background-size: cover;
+    -fx-font-family: 'MedievalSharp', cursive;
+    -fx-base: #0d0d12;
+
+    /* Enhanced color palette with more depth */
+    -fx-dark-base: #0a0a0f;
+    -fx-dark-accent: #161620;
+    -fx-medium-accent: #1f1f2e;
+    -fx-light-accent: #2a2a3a;
+    -fx-highlight: #8b5cf6;
+    -fx-highlight-light: #a78bfa;
+    -fx-highlight-bright: #c4b5fd;
+    -fx-gold-accent: #fbbf24;
+    -fx-gold-bright: #fcd34d;
+    -fx-player-accent: #059669;
+    -fx-player-light: #10b981;
+    -fx-enemy-accent: #dc2626;
+    -fx-enemy-light: #ef4444;
+    -fx-text-primary: #f3f4f6;
+    -fx-text-secondary: #d1d5db;
+    -fx-text-player: #34d399;
+    -fx-text-enemy: #f87171;
+    -fx-text-neutral: #9ca3af;
+    -fx-text-danger: #fca5a5;
+
+
+}
+
+/* Enhanced main combat layout container */
+.combat-container {
+    -fx-spacing: 25;
+    -fx-padding: 30;
+    -fx-alignment: center;
+    -fx-background-color: rgba(20, 20, 30, 0.92);
+    -fx-background-radius: 20;
+    -fx-border-color: linear-gradient(to right, rgba(139, 92, 246, 0.3), rgba(251, 191, 36, 0.3));
+    -fx-border-width: 2;
+    -fx-border-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 25, 0.3, 0, 8);
+    -fx-max-width: 500px;
+    -fx-min-height: 400px;
+}
+
+/* Enhanced status panel with glassmorphism effect */
+.status-panel {
+    -fx-spacing: 20;
+    -fx-padding: 20;
+    -fx-alignment: center;
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 15;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 1;
+    -fx-border-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 15, 0.2, 0, 4);
+}
+
+/* Enhanced action buttons container */
+.action-panel {
+    -fx-spacing: 15;
+    -fx-padding: 15;
+    -fx-alignment: center;
+}
+
+/* Enhanced general label styling */
+.label {
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-size: 17px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -fx-text-primary;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.7), 4, 0.2, 0, 2);
+    -fx-padding: 12;
+    -fx-alignment: center;
+    -fx-background-radius: 12;
+}
+
+/* Enhanced adventurer stats label with animated glow */
+#adventurerLabel {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-text-player;
+    -fx-background-color: rgba(5, 150, 105, 0.12);
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-player-accent;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(gaussian, rgba(5, 150, 105, 0.4), 10, 0.3, 0, 0);
+}
+
+/* Enhanced monster info label with pulsing effect */
+#currentMonsterShortLabel {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-text-enemy;
+    -fx-background-color: rgba(220, 38, 38, 0.12);
+    -fx-background-radius: 12;
+    -fx-border-color: -fx-enemy-accent;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-padding: 15;
+    -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.4), 10, 0.3, 0, 0);
+}
+
+/* Enhanced button styling with modern effects */
+.button {
+    -fx-background-color: rgba(139, 92, 246, 0.85);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(139, 92, 246, 0.6);
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 12 20;
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.3), 8, 0.2, 0, 4);
+    -fx-cursor: hand;
+    -fx-min-width: 150px;
+    -fx-min-height: 45px;
+}
+
+.button:hover {
+    -fx-background-color: rgba(139, 92, 246, 0.95);
+    -fx-border-color: rgba(167, 139, 250, 0.8);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.6), 15, 0.3, 0, 6);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.button:pressed {
+    -fx-background-color: rgba(79, 70, 229, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(79, 70, 229, 0.8), 10, 0.4, 0, 2);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Enhanced attack button with fiery effect */
+#attackButton {
+    -fx-background-color: rgba(220, 38, 38, 0.9);
+    -fx-border-color: rgba(248, 113, 113, 0.7);
+    -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.5), 12, 0.3, 0, 4);
+}
+
+#attackButton:hover {
+    -fx-background-color: rgba(239, 68, 68, 0.95);
+    -fx-border-color: rgba(248, 113, 113, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.8), 18, 0.4, 0, 6);
+}
+
+/* Enhanced enemy info button with mystical glow */
+#showEnemyInfoButton {
+    -fx-background-color: rgba(75, 85, 99, 0.9);
+    -fx-border-color: rgba(156, 163, 175, 0.6);
+    -fx-effect: dropshadow(gaussian, rgba(75, 85, 99, 0.4), 8, 0.2, 0, 4);
+}
+
+#showEnemyInfoButton:hover {
+    -fx-background-color: rgba(107, 114, 128, 0.95);
+    -fx-border-color: rgba(139, 92, 246, 0.8);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.6), 15, 0.3, 0, 6);
+}
+
+/* Enhanced use item button with nature theme */
+#useAnItemButton {
+    -fx-background-color: rgba(5, 150, 105, 0.9);
+    -fx-border-color: rgba(52, 211, 153, 0.7);
+    -fx-effect: dropshadow(gaussian, rgba(5, 150, 105, 0.4), 10, 0.3, 0, 4);
+}
+
+#useAnItemButton:hover {
+    -fx-background-color: rgba(16, 185, 129, 0.95);
+    -fx-border-color: rgba(52, 211, 153, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.7), 15, 0.3, 0, 6);
+}
+
+/* Enhanced run button with earthy tones */
+#runButton {
+    -fx-background-color: rgba(120, 113, 108, 0.9);
+    -fx-border-color: rgba(168, 162, 158, 0.6);
+    -fx-effect: dropshadow(gaussian, rgba(120, 113, 108, 0.4), 8, 0.2, 0, 4);
+}
+
+#runButton:hover {
+    -fx-background-color: rgba(168, 162, 158, 0.9);
+    -fx-border-color: rgba(168, 162, 158, 0.8);
+    -fx-effect: dropshadow(gaussian, rgba(168, 162, 158, 0.6), 12, 0.3, 0, 5);
+}
+
+/* Enhanced continue button with royal purple theme */
+#continueButton {
+    -fx-background-color: rgba(109, 40, 217, 0.9);
+    -fx-border-color: rgba(196, 181, 253, 0.7);
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(109, 40, 217, 0.6), 15, 0.3, 0, 5);
+}
+
+#continueButton:hover {
+    -fx-background-color: rgba(139, 92, 246, 0.95);
+    -fx-border-color: rgba(196, 181, 253, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.8), 20, 0.4, 0, 8);
+}
+
+/* Enhanced back button with subtle styling */
+#backButton {
+    -fx-background-color: rgba(75, 85, 99, 0.8);
+    -fx-border-color: rgba(107, 114, 128, 0.6);
+    -fx-effect: dropshadow(gaussian, rgba(55, 65, 81, 0.4), 8, 0.2, 0, 3);
+}
+
+#backButton:hover {
+    -fx-background-color: rgba(107, 114, 128, 0.9);
+    -fx-border-color: rgba(139, 92, 246, 0.7);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.5), 12, 0.3, 0, 5);
+}
+
+/* Enhanced victory message with golden glow */
+#winLabel {
+    -fx-font-family: 'Uncial Antiqua', cursive;
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-gold-bright;
+    -fx-background-color: rgba(251, 191, 36, 0.12);
+    -fx-background-radius: 15;
+    -fx-border-color: -fx-gold-accent;
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(251, 191, 36, 0.6), 15, 0.3, 0, 5);
+    -fx-alignment: center;
+}
+
+/* Enhanced defeat message with dramatic styling */
+#loseLabel {
+    -fx-font-family: 'Uncial Antiqua', cursive;
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-text-enemy;
+    -fx-background-color: rgba(220, 38, 38, 0.12);
+    -fx-background-radius: 15;
+    -fx-border-color: -fx-enemy-accent;
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.5), 12, 0.3, 0, 4);
+    -fx-alignment: center;
+}
+
+/* Enhanced shame/flee labels with muted styling */
+#shameLabel, #giveUpLabel {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -fx-text-neutral;
+    -fx-background-color: rgba(120, 113, 108, 0.08);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(156, 163, 175, 0.4);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+    -fx-padding: 15;
+    -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0.2, 0, 3);
+}
+
+/* Enhanced enemy info label with improved readability */
+#infoLabel {
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -fx-text-primary;
+    -fx-background-color: rgba(31, 31, 46, 0.85);
+    -fx-background-radius: 15;
+    -fx-border-color: rgba(139, 92, 246, 0.3);
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+    -fx-padding: 20;
+    -fx-alignment: center-left;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 12, 0.3, 0, 5);
+    -fx-line-spacing: 2px;
+}
+
+/* Enhanced scene styling */
+.scene {
+    -fx-font-family: 'MedievalSharp', cursive;
+    -fx-background-color: rgba(13, 13, 18, 1.0);
+}
+
+/* Enhanced HP warning with pulsing animation */
+.hp-warning {
+    -fx-text-fill: #fbbf24;
+    -fx-background-color: rgba(251, 191, 36, 0.15);
+    -fx-effect: dropshadow(gaussian, rgba(251, 191, 36, 0.8), 15, 0.4, 0, 2);
+}
+
+/* Enhanced HP critical with intense warning */
+.hp-critical {
+    -fx-text-fill: #ef4444;
+    -fx-background-color: rgba(239, 68, 68, 0.2);
+    -fx-border-color: rgba(239, 68, 68, 0.6);
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 1.0), 18, 0.5, 0, 3);
+}
+
+/* New enhanced visual effects */
+.combat-flash {
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.95), 20, 0.4, 0, 0);
+}
+
+.critical-hit {
+    -fx-effect: dropshadow(gaussian, rgba(251, 191, 36, 1.0), 25, 0.5, 0, 0);
+}
+
+.magic-glow {
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.8), 18, 0.4, 0, 0);
+}
+
+/* Enhanced status effects */
+.status-positive {
+    -fx-background-color: rgba(5, 150, 105, 0.15);
+    -fx-border-color: rgba(52, 211, 153, 0.6);
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(5, 150, 105, 0.4), 10, 0.3, 0, 0);
+}
+
+.status-negative {
+    -fx-background-color: rgba(220, 38, 38, 0.15);
+    -fx-border-color: rgba(248, 113, 113, 0.6);
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.4), 10, 0.3, 0, 0);
+}
+
+.status-neutral {
+    -fx-background-color: rgba(107, 114, 128, 0.15);
+    -fx-border-color: rgba(156, 163, 175, 0.5);
+    -fx-border-width: 1;
+}
+
+/* New accessibility enhancements */
+.button:focused {
+    -fx-border-color: rgba(196, 181, 253, 0.8);
+    -fx-border-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.7), 12, 0.3, 0, 0);
+}
+
+/* Responsive design improvements */
+@media (max-width: 600px) {
+    .combat-container {
+        -fx-max-width: 95%;
+        -fx-padding: 20;
+    }
+
+    .button {
+        -fx-min-width: 120px;
+        -fx-font-size: 14px;
+    }
+}

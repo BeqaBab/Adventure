@@ -52,7 +52,7 @@ public class Game extends Application {
         layout.setPadding(new Insets(20, 20, 20, 20));
         layout.getStyleClass().add("vbox");
 
-        Scene scene = new Scene(layout, 500, 400);
+        Scene scene = new Scene(layout, 600, 500);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Welcome_screen_dark.css")).toExternalForm());
 
         primaryStage.setTitle("Welcome!");
