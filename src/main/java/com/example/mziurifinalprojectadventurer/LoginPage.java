@@ -84,40 +84,49 @@ public class LoginPage {
         String username = loginNameField.getText();
         String userPassword = loginPasswordField.getText();
         String adventurerClass = loginClassChoiceBox.getValue();
+
         try {
             Connection connection = DriverManager.getConnection(url, user, password);
-            boolean wasFound = false;
-            String insertQuery = "SELECT adventurer_password FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?;";
-            PreparedStatement stmt = connection.prepareStatement(insertQuery);
+            String checkAccountQuery = "SELECT adventurer_password FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?;";
+            PreparedStatement stmt = connection.prepareStatement(checkAccountQuery);
             stmt.setString(1, username);
             stmt.setString(2, adventurerClass);
             ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                long password = rs.getLong("adventurer_password");
-                if (password == hash(userPassword)) {
-                    wasFound = true;
-                }
+
+            if (!rs.next()) {
+                loginMessageLabel.setText("This account doesn't exist");
+                loginPasswordField.clear();
+                return;
             }
-            if (!wasFound) loginMessageLabel.setText("Wrong password or class.");
-            else{
-                insertQuery = "SELECT * FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?;";
-                stmt = connection.prepareStatement(insertQuery);
-                stmt.setString(1, username);
-                stmt.setString(2, adventurerClass);
-                rs = stmt.executeQuery();
-                while(rs.next()){
-                    currentAdventurer.setName(username);
-                    currentAdventurer.setLevel(rs.getInt("adventurer_level"));
-                    currentAdventurer.setExp(rs.getInt("adventurer_exp"));
-                    currentAdventurer.setHp(rs.getInt("adventurer_hp"));
-                    currentAdventurer.setAttack(rs.getInt("adventurer_attack"));
-                    currentAdventurer.setBasicPotions(rs.getInt("basic_potions"));
-                    currentAdventurer.setMaxPotions(rs.getInt("max_potions"));
-                    currentAdventurer.setAdventurerClass(rs.getString("adventurer_class"));
-                    currentAdventurer.setMaxHp(rs.getInt("max_health"));
-                }
+            long storedPassword = rs.getLong("adventurer_password");
+            if (userPassword.isBlank() || storedPassword == 0) {
+                loginMessageLabel.setText("Please input the password.");
+                loginPasswordField.clear();
+                return;
             }
-            loginPasswordField.clear();
+            if (storedPassword != hash(userPassword)) {
+                loginMessageLabel.setText("Wrong password.");
+                loginPasswordField.clear();
+                return;
+            }
+            String selectQuery = "SELECT * FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?;";
+            stmt = connection.prepareStatement(selectQuery);
+            stmt.setString(1, username);
+            stmt.setString(2, adventurerClass);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                currentAdventurer.setId(rs.getInt("adventurer_id"));
+                currentAdventurer.setName(username);
+                currentAdventurer.setLevel(rs.getInt("adventurer_level"));
+                currentAdventurer.setExp(rs.getInt("adventurer_exp"));
+                currentAdventurer.setHp(rs.getInt("adventurer_hp"));
+                currentAdventurer.setAttack(rs.getInt("adventurer_attack"));
+                currentAdventurer.setBasicPotions(rs.getInt("basic_potions"));
+                currentAdventurer.setMaxPotions(rs.getInt("max_potions"));
+                currentAdventurer.setAdventurerClass(rs.getString("adventurer_class"));
+                currentAdventurer.setMaxHp(rs.getInt("max_health"));
+                loginPasswordField.clear();
+            }
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }

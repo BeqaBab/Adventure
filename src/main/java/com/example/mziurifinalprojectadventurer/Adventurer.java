@@ -2,7 +2,7 @@ package com.example.mziurifinalprojectadventurer;
 
 public class Adventurer {
     private String name, adventurerClass;
-    private int level, exp, hp, attack, maxHp;
+    private int level, exp, hp, attack, maxHp, id;
     private int basicPotions, maxPotions;
 
     public Adventurer() {
@@ -14,6 +14,14 @@ public class Adventurer {
 
     public int getMaxHp() {
         return maxHp;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -82,5 +90,18 @@ public class Adventurer {
 
     public void setMaxHp(int maxHp) {
         this.maxHp = maxHp;
+    }
+
+    @Override
+    public String toString() {
+        return "Name=" + name + '\n' +
+                " AdventurerClass=" + adventurerClass + '\n' +
+                " Level=" + level + '\n' +
+                " Exp=" + exp + '\n' +
+                " Hp=" + hp + '\n' +
+                " Attack=" + attack + '\n' +
+                " MaxHp=" + maxHp + '\n' +
+                " BasicPotions=" + basicPotions + '\n' +
+                " MaxPotions=" + maxPotions;
     }
 }

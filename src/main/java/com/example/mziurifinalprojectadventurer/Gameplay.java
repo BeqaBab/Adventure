@@ -30,7 +30,35 @@ public class Gameplay {
         this.currentAdventurer = currentAdventurer;
     }
 
-    public Enemy chooseEnemy() throws SQLException {
+    private void saveProgress(Enemy currentEnemy){
+        currentAdventurer.setLevel(currentAdventurer.getLevel() + currentEnemy.getDropExp() / 1000);
+        currentAdventurer.setExp(currentAdventurer.getExp() + currentEnemy.getDropExp() % 1000);
+        currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() + currentEnemy.getDropBasic());
+        currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() + currentEnemy.getDropMax());
+        if(currentAdventurer.getExp() + currentEnemy.getDropExp() > 1000){
+            currentAdventurer.setHp(currentAdventurer.getHp() + 10);
+            currentAdventurer.setAttack(currentAdventurer.getAttack() + 10);
+        }
+        try{
+            Connection connection = DriverManager.getConnection(url, user, password);
+            String insertQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, adventurer_attack = ?, basic_potions = ?, max_potions = ?, max_health = ? WHERE adventurer_id = ?;";
+            PreparedStatement stmt = connection.prepareStatement(insertQuery);
+            stmt.setInt(1, currentAdventurer.getLevel());
+            stmt.setInt(2, currentAdventurer.getExp());
+            stmt.setInt(3, currentAdventurer.getHp());
+            stmt.setInt(4, currentAdventurer.getAttack());
+            stmt.setInt(5, currentAdventurer.getBasicPotions());
+            stmt.setInt(6, currentAdventurer.getMaxPotions());
+            stmt.setInt(7, currentAdventurer.getMaxHp());
+            stmt.setInt(8, currentAdventurer.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private Enemy chooseEnemy() throws SQLException {
         int randomId = random.nextInt(1, 10);
         Enemy currentEnemy = new Enemy();
         Connection connection = DriverManager.getConnection(url, user, password);
@@ -49,8 +77,22 @@ public class Gameplay {
         return currentEnemy;
     }
 
+    public void deleteProgress(){
+        try{
+            Connection connection = DriverManager.getConnection(url, user, password);
+            String insertQuery = "DELETE FROM adventurer WHERE adventurer_id = ?;";
+            PreparedStatement stmt = connection.prepareStatement(insertQuery);
+            stmt.setInt(1, currentAdventurer.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void Game() throws SQLException {
         final Enemy[] currentEnemy = {chooseEnemy()};
+        Label damageLabel = new Label("");
+
         Label adventurerLabel = new Label("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
         adventurerLabel.setId("adventurerLabel");
 
@@ -71,7 +113,7 @@ public class Gameplay {
 
         VBox statusPanel = new VBox(10);
         statusPanel.getStyleClass().add("status-panel");
-        statusPanel.getChildren().addAll(adventurerLabel, currentMonsterShortLabel);
+        statusPanel.getChildren().addAll(damageLabel, adventurerLabel, currentMonsterShortLabel);
 
         HBox primaryActions = new HBox(10);
         primaryActions.setAlignment(Pos.CENTER);
@@ -96,16 +138,20 @@ public class Gameplay {
         runButton.setOnAction(e -> {
             Label shameLabel = new Label("You have fled from battle...");
             shameLabel.setId("shameLabel");
-            Label giveUpLabel = new Label("Perhaps another path awaits");
+            Label giveUpLabel = new Label("There's no place for shame in this world");
             giveUpLabel.setId("giveUpLabel");
+
+            Button seeRunInfoButton = getButton();
 
             VBox shameLayout = new VBox(15);
             shameLayout.getStyleClass().add("combat-container");
-            shameLayout.getChildren().addAll(shameLabel, giveUpLabel);
+            shameLayout.getChildren().addAll(shameLabel, giveUpLabel, seeRunInfoButton);
 
             StackPane shameContainer = new StackPane();
             shameContainer.getChildren().add(shameLayout);
             shameContainer.setAlignment(Pos.CENTER);
+
+            deleteProgress();
 
             primaryStage.getScene().setRoot(shameContainer);
         });
@@ -120,21 +166,26 @@ public class Gameplay {
             currentAdventurer.setHp(currentAdventurer.getHp() - currentEnemy[0].getDamage());
 
             if(currentAdventurer.getHp() <= 0){
-                Label loseLabel = new Label("Your journey ends here...");
+                Label loseLabel = new Label("Your journey ends here..." + "\nNo one gets a second chance");
                 loseLabel.setId("loseLabel");
+
+                Button seeRunInfoButton = getButton();
 
                 VBox loseLayout = new VBox(15);
                 loseLayout.getStyleClass().add("combat-container");
-                loseLayout.getChildren().add(loseLabel);
+                loseLayout.getChildren().addAll(loseLabel, seeRunInfoButton);
 
                 StackPane loseContainer = new StackPane();
                 loseContainer.getChildren().add(loseLayout);
                 loseContainer.setAlignment(Pos.CENTER);
+                deleteProgress();
 
                 primaryStage.getScene().setRoot(loseContainer);
             } else if(currentEnemy[0].getHp() <= 0){
-                Label winLabel = new Label("Victory! You defeated " + currentEnemy[0].getName());
+                Label winLabel = new Label("Victory! You defeated " + currentEnemy[0].getName() + "\n Your progress has been saved!");
                 winLabel.setId("winLabel");
+                saveProgress(currentEnemy[0]);
+                adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
 
                 try {
                     currentEnemy[0] = chooseEnemy();
@@ -158,18 +209,13 @@ public class Gameplay {
             }
 
             currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
+            damageLabel.setText("You dealt: " + criticalHitNumber + "\n" + "You took: " + currentEnemy[0].getDamage());
             adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
-
-            if(currentAdventurer.getHp() <= 20) {
-                adventurerLabel.getStyleClass().add("hp-warning");
-            }
-            if(currentAdventurer.getHp() <= 10) {
-                adventurerLabel.getStyleClass().add("hp-critical");
-            }
         });
 
         showEnemyInfoButton.setOnAction(e -> {
-            Label infoLabel = getLabel(currentEnemy);
+            Label infoLabel = new Label(currentEnemy[0].toString());
+            infoLabel.setId("infoLabel");
 
             Button backButton = new Button("← Back to Combat");
             backButton.setId("backButton");
@@ -227,7 +273,6 @@ public class Gameplay {
             });
 
             backButton.setOnAction(action -> primaryStage.getScene().setRoot(centerContainer));
-
             infoLabel.setId("infoLabel");
         });
 
@@ -238,17 +283,21 @@ public class Gameplay {
     }
 
     @NotNull
-    private static Label getLabel(Enemy[] currentEnemy) {
-        Label infoLabel = new Label(
-                "Enemy Details:\n\n" +
-                        "Name: " + currentEnemy[0].getName() + "\n" +
-                        "Damage: " + currentEnemy[0].getDamage() + "\n" +
-                        "HP: " + currentEnemy[0].getHp() + "\n" +
-                        "Basic Potions Drop: " + currentEnemy[0].getDropBasic() + "\n" +
-                        "Max Potions Drop: " + currentEnemy[0].getDropMax() + "\n" +
-                        "Experience Drop: " + currentEnemy[0].getDropExp()
-        );
-        infoLabel.setId("infoLabel");
-        return infoLabel;
+    private Button getButton() {
+        Button seeRunInfoButton = new Button("See your run info");
+        seeRunInfoButton.setOnAction(actionEvent -> {
+            Label runInfoLabel = new Label(currentAdventurer.toString());
+
+            VBox runInfoLayout = new VBox(15);
+            runInfoLayout.getStyleClass().add("combat-container");
+            runInfoLayout.getChildren().addAll(runInfoLabel);
+
+            StackPane runInfoContainer = new StackPane();
+            runInfoContainer.getChildren().add(runInfoLayout);
+            runInfoContainer.setAlignment(Pos.CENTER);
+
+            primaryStage.getScene().setRoot(runInfoContainer);
+        });
+        return seeRunInfoButton;
     }
 }

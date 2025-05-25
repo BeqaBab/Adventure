@@ -55,4 +55,15 @@ public class Enemy {
     public int getDropMax() {
         return dropMax;
     }
+
+    @Override
+    public String toString() {
+        return "Enemy Details:\n\n" +
+                "Name: " + name + "\n" +
+                "Damage: " + damage + "\n" +
+                "HP: " + hp + "\n" +
+                "Basic Potions Drop: " + dropBasic + "\n" +
+                "Max Potions Drop: " + dropMax + "\n" +
+                "Experience Drop: " + dropExp ;
+    }
 }
