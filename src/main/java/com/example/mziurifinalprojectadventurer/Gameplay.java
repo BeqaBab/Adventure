@@ -29,6 +29,15 @@ public class Gameplay {
         this.currentAdventurer = currentAdventurer;
     }
 
+    @NotNull
+    private String getWeaponName() {
+        return currentAdventurer.getLevel() < 10 ? "🗡Wooden Sword" : "Magic Staff";
+    }
+
+    private int getWeaponDamage() {
+        return currentAdventurer.getLevel() < 10 ? 15 : 30;
+    }
+
     private void saveProgress(@NotNull Enemy currentEnemy){
         currentAdventurer.setLevel(currentAdventurer.getLevel() + currentEnemy.getDropExp() / 1000);
         currentAdventurer.setExp(currentAdventurer.getExp() + currentEnemy.getDropExp() % 1000);
@@ -89,12 +98,21 @@ public class Gameplay {
         }
     }
 
+    private void returnToStartingPage() {
+        try {
+            Game gameApp = new Game();
+            gameApp.start(primaryStage);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void Game() throws SQLException {
         final Enemy[] currentEnemy = {chooseEnemy()};
         Label damageLabel = new Label("Combat will begin when you attack!");
         damageLabel.setId("damageLabel");
 
-        Label adventurerLabel = new Label("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
+        Label adventurerLabel = new Label("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
         adventurerLabel.setId("adventurerLabel");
 
         Label currentMonsterShortLabel = new Label(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
@@ -141,12 +159,15 @@ public class Gameplay {
             shameLabel.setId("shameLabel");
             Label giveUpLabel = new Label("There's no place for shame in this world");
             giveUpLabel.setId("giveUpLabel");
+            Button returnToMenuButton = new Button("🏠 Return to Menu");
+            returnToMenuButton.setId("returnToMenuButton");
+            returnToMenuButton.setOnAction(actionEvent -> returnToStartingPage());
 
-            Button seeRunInfoButton = getButton();
+            Button seeRunInfoButton = getButton("flee");
 
             VBox shameLayout = new VBox(15);
             shameLayout.getStyleClass().add("combat-container");
-            shameLayout.getChildren().addAll(shameLabel, giveUpLabel, seeRunInfoButton);
+            shameLayout.getChildren().addAll(shameLabel, giveUpLabel, seeRunInfoButton, returnToMenuButton);
 
             StackPane shameContainer = new StackPane();
             shameContainer.getChildren().add(shameLayout);
@@ -159,7 +180,7 @@ public class Gameplay {
 
         attackButton.setOnAction(e -> {
             double criticalHitNumber = random.nextInt(0, 100);
-            int damage = currentAdventurer.getAttack();
+            int damage = getWeaponDamage();
             if(criticalHitNumber >= 90){
                 damage *= 2;
             }
@@ -170,11 +191,15 @@ public class Gameplay {
                 Label loseLabel = new Label("Your journey ends here..." + "\nNo one gets a second chance");
                 loseLabel.setId("loseLabel");
 
-                Button seeRunInfoButton = getButton();
+                Button seeRunInfoButton = getButton("lose");
+
+                Button returnToMenuButton = new Button("🏠 Return to Menu");
+                returnToMenuButton.setId("returnToMenuButton");
+                returnToMenuButton.setOnAction(actionEvent -> returnToStartingPage());
 
                 VBox loseLayout = new VBox(15);
                 loseLayout.getStyleClass().add("combat-container");
-                loseLayout.getChildren().addAll(loseLabel, seeRunInfoButton);
+                loseLayout.getChildren().addAll(loseLabel, seeRunInfoButton, returnToMenuButton);
 
                 StackPane loseContainer = new StackPane();
                 loseContainer.getChildren().add(loseLayout);
@@ -186,7 +211,7 @@ public class Gameplay {
                 Label winLabel = new Label("Victory! You defeated " + currentEnemy[0].getName() + "\n Your progress has been saved!");
                 winLabel.setId("winLabel");
                 saveProgress(currentEnemy[0]);
-                adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
+                adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
 
                 try {
                     currentEnemy[0] = chooseEnemy();
@@ -196,7 +221,7 @@ public class Gameplay {
 
                 Button continueButton = new Button("Continue Adventure →");
                 continueButton.setId("continueButton");
-                continueButton.setOnAction(event -> primaryStage.getScene().setRoot(centerContainer));
+                continueButton.setOnAction(actionEvent -> primaryStage.getScene().setRoot(centerContainer));
 
                 VBox winLayout = new VBox(15);
                 winLayout.getStyleClass().add("combat-container");
@@ -210,8 +235,8 @@ public class Gameplay {
             }
 
             currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
-            damageLabel.setText("⚔ You dealt: " + damage + (criticalHitNumber >= 90 ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
-            adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
+            damageLabel.setText("⚔ " + getWeaponName() + " dealt: " + damage + (criticalHitNumber >= 90 ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
+            adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
         });
 
         showEnemyInfoButton.setOnAction(e -> {
@@ -258,7 +283,7 @@ public class Gameplay {
                     int newAdventurerHealth = currentAdventurer.getHp() + 20;
                     if(newAdventurerHealth > currentAdventurer.getMaxHp())  newAdventurerHealth = currentAdventurer.getMaxHp();
                     currentAdventurer.setHp(newAdventurerHealth);
-                    adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
+                    adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
                 } else infoLabel.setText("You don't have any basic potions left.");
             });
 
@@ -269,7 +294,7 @@ public class Gameplay {
                     int newAdventurerHealth = currentAdventurer.getHp() + 40;
                     if(newAdventurerHealth > currentAdventurer.getMaxHp())  newAdventurerHealth = currentAdventurer.getMaxHp();
                     currentAdventurer.setHp(newAdventurerHealth);
-                    adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
+                    adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
                 } else infoLabel.setText("You don't have any max potions left.");
             });
 
@@ -284,15 +309,58 @@ public class Gameplay {
     }
 
     @NotNull
-    private Button getButton() {
+    private Button getButton(String context) {
         Button seeRunInfoButton = new Button("See your run info");
         seeRunInfoButton.setOnAction(actionEvent -> {
             Label runInfoLabel = new Label(currentAdventurer.toString());
             runInfoLabel.setId("infoLabel");
+            Button backButton = new Button("← Back");
+            backButton.setId("backButton");
+            backButton.setOnAction(e -> {
+                if (context.equals("flee")) {
+                    Label shameLabel = new Label("You have fled from battle...");
+                    shameLabel.setId("shameLabel");
+                    Label giveUpLabel = new Label("There's no place for shame in this world");
+                    giveUpLabel.setId("giveUpLabel");
+                    Button returnToMenuButton = new Button("🏠 Return to Menu");
+                    returnToMenuButton.setId("returnToMenuButton");
+                    returnToMenuButton.setOnAction(action -> returnToStartingPage());
+
+                    Button seeRunInfoButtonAgain = getButton("flee");
+
+                    VBox shameLayout = new VBox(15);
+                    shameLayout.getStyleClass().add("combat-container");
+                    shameLayout.getChildren().addAll(shameLabel, giveUpLabel, seeRunInfoButtonAgain, returnToMenuButton);
+
+                    StackPane shameContainer = new StackPane();
+                    shameContainer.getChildren().add(shameLayout);
+                    shameContainer.setAlignment(Pos.CENTER);
+
+                    primaryStage.getScene().setRoot(shameContainer);
+                } else {
+                    Label loseLabel = new Label("Your journey ends here..." + "\nNo one gets a second chance");
+                    loseLabel.setId("loseLabel");
+                    Button seeRunInfoButtonAgain = getButton("lose");
+
+                    Button returnToMenuButton = new Button("🏠 Return to Menu");
+                    returnToMenuButton.setId("returnToMenuButton");
+                    returnToMenuButton.setOnAction(action -> returnToStartingPage());
+
+                    VBox loseLayout = new VBox(15);
+                    loseLayout.getStyleClass().add("combat-container");
+                    loseLayout.getChildren().addAll(loseLabel, seeRunInfoButtonAgain, returnToMenuButton);
+
+                    StackPane loseContainer = new StackPane();
+                    loseContainer.getChildren().add(loseLayout);
+                    loseContainer.setAlignment(Pos.CENTER);
+
+                    primaryStage.getScene().setRoot(loseContainer);
+                }
+            });
 
             VBox runInfoLayout = new VBox(15);
             runInfoLayout.getStyleClass().add("combat-container");
-            runInfoLayout.getChildren().addAll(runInfoLabel);
+            runInfoLayout.getChildren().addAll(runInfoLabel, backButton);
 
             StackPane runInfoContainer = new StackPane();
             runInfoContainer.getChildren().add(runInfoLayout);

@@ -98,7 +98,6 @@ public class Adventurer {
                 "AdventurerClass = " + adventurerClass + '\n' +
                 "Level = " + level + '\n' +
                 "Exp = " + exp + '\n' +
-                "Hp = " + hp + '\n' +
                 "Attack = " + attack + '\n' +
                 "MaxHp = " + maxHp + '\n' +
                 "BasicPotions = " + basicPotions + '\n' +

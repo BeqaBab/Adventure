@@ -210,7 +210,9 @@ public class LoginPage {
 
         switchToRegisterButton.setOnAction(e -> {
             primaryStage.getScene().setRoot(registerRoot);
+            loginMessageLabel.setText("");
             currentRoot = registerRoot;
+            registrationClassChoiceBox.setValue(null);
             registrationPasswordField.clear();
             registrationNameField.clear();
         });
@@ -218,6 +220,7 @@ public class LoginPage {
         switchToLoginButton.setOnAction(e -> {
             primaryStage.getScene().setRoot(loginRoot);
             currentRoot = loginRoot;
+            loginClassChoiceBox.setValue(null);
             loginNameField.clear();
             loginPasswordField.clear();
         });
