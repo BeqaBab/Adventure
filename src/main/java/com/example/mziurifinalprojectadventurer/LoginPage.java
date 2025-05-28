@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
 import java.util.Objects;
@@ -59,7 +60,6 @@ public class LoginPage {
                         newAdventurer.setAttack(5);
                         newAdventurer.setAdventurerClass("Basic");
                         break;
-
                 }
                 String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_level, adventurer_exp, adventurer_HP, adventurer_attack, basic_potions, max_potions, adventurer_class, adventurer_password, max_health) VALUES(?, 1, 0, ?, ?, 10, 5, ?, ?, ?);";
                 PreparedStatement stmt = connection.prepareStatement(insertQuery);
@@ -80,7 +80,7 @@ public class LoginPage {
         }
     }
 
-    private void login(TextField loginNameField, TextField loginPasswordField, ChoiceBox<String> loginClassChoiceBox, Label loginMessageLabel) throws SQLException {
+    private void login(@NotNull TextField loginNameField, @NotNull TextField loginPasswordField, @NotNull ChoiceBox<String> loginClassChoiceBox, Label loginMessageLabel) throws SQLException {
         String username = loginNameField.getText();
         String userPassword = loginPasswordField.getText();
         String adventurerClass = loginClassChoiceBox.getValue();
@@ -134,7 +134,7 @@ public class LoginPage {
         gameplay.Game();
     }
 
-    public static long hash(String s) {
+    public static long hash(@NotNull String s) {
         final int p = 31;
         final int m = 100000009;
         long hashValue = 0;
@@ -223,7 +223,7 @@ public class LoginPage {
         });
 
         currentRoot = loginRoot;
-        Scene mainScene = new Scene(currentRoot, 600, 500);
+        Scene mainScene = new Scene(currentRoot, 700, 600);
         mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Adventure_login.css")).toExternalForm());
         primaryStage.setScene(mainScene);
     }

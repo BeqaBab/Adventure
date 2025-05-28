@@ -94,14 +94,14 @@ public class Adventurer {
 
     @Override
     public String toString() {
-        return "Name=" + name + '\n' +
-                " AdventurerClass=" + adventurerClass + '\n' +
-                " Level=" + level + '\n' +
-                " Exp=" + exp + '\n' +
-                " Hp=" + hp + '\n' +
-                " Attack=" + attack + '\n' +
-                " MaxHp=" + maxHp + '\n' +
-                " BasicPotions=" + basicPotions + '\n' +
-                " MaxPotions=" + maxPotions;
+        return "Name = " + name + '\n' +
+                "AdventurerClass = " + adventurerClass + '\n' +
+                "Level = " + level + '\n' +
+                "Exp = " + exp + '\n' +
+                "Hp = " + hp + '\n' +
+                "Attack = " + attack + '\n' +
+                "MaxHp = " + maxHp + '\n' +
+                "BasicPotions = " + basicPotions + '\n' +
+                "MaxPotions = " + maxPotions;
     }
 }

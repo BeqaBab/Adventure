@@ -47,6 +47,21 @@
     -fx-min-height: 450px;
 }
 
+/* Enhanced info container for end game screens */
+.info-container {
+    -fx-spacing: 20;
+    -fx-padding: 35;
+    -fx-alignment: center;
+    -fx-background-color: rgba(20, 20, 30, 0.98);
+    -fx-background-radius: 25;
+    -fx-border-color: linear-gradient(to bottom, rgba(139, 92, 246, 0.6), rgba(251, 191, 36, 0.4), rgba(139, 92, 246, 0.3));
+    -fx-border-width: 3;
+    -fx-border-radius: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.95), 35, 0.5, 0, 12);
+    -fx-max-width: 650px;
+    -fx-min-height: 500px;
+}
+
 /* Enhanced status panel with glassmorphism effect */
 .status-panel {
     -fx-spacing: 20;
@@ -108,6 +123,60 @@
     -fx-padding: 16;
     -fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.5), 12, 0.4, 0, 0);
     -fx-text-alignment: center;
+}
+
+/* Enhanced damage display label styling */
+#damageLabel {
+    -fx-font-family: 'MedievalSharp', cursive;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-text-warning;
+    -fx-background-color: rgba(251, 191, 36, 0.15);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(251, 191, 36, 0.4);
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-padding: 14;
+    -fx-effect: dropshadow(gaussian, rgba(251, 191, 36, 0.4), 10, 0.3, 0, 3);
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+    -fx-min-height: 50px;
+}
+
+/* Enhanced run info display label */
+#runInfoLabel {
+    -fx-font-family: 'Cinzel', serif;
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -fx-text-primary;
+    -fx-background-color: rgba(31, 31, 46, 0.95);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(139, 92, 246, 0.6);
+    -fx-border-width: 2;
+    -fx-border-radius: 18;
+    -fx-padding: 25;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 18, 0.4, 0, 6);
+    -fx-line-spacing: 4px;
+    -fx-wrap-text: true;
+    -fx-min-width: 500px;
+}
+
+/* Enhanced run info title */
+#runInfoTitle {
+    -fx-font-family: 'Uncial Antiqua', cursive;
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -fx-highlight-bright;
+    -fx-background-color: rgba(139, 92, 246, 0.15);
+    -fx-background-radius: 15;
+    -fx-border-color: rgba(139, 92, 246, 0.5);
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.6), 20, 0.4, 0, 6);
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
 }
 
 /* Enhanced button styling with modern effects */
@@ -226,6 +295,42 @@
     -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.6), 15, 0.4, 0, 5);
 }
 
+/* Enhanced run info button styling */
+#seeRunInfoButton {
+    -fx-background-color: rgba(139, 92, 246, 0.9);
+    -fx-border-color: rgba(167, 139, 250, 0.7);
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.6), 15, 0.4, 0, 5);
+    -fx-min-width: 180px;
+    -fx-min-height: 50px;
+}
+
+#seeRunInfoButton:hover {
+    -fx-background-color: rgba(167, 139, 250, 0.95);
+    -fx-border-color: rgba(196, 181, 253, 0.9);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.8), 20, 0.5, 0, 7);
+}
+
+/* Enhanced return to menu button */
+#returnToMenuButton {
+    -fx-background-color: rgba(75, 85, 99, 0.9);
+    -fx-border-color: rgba(107, 114, 128, 0.7);
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-effect: dropshadow(gaussian, rgba(75, 85, 99, 0.6), 12, 0.4, 0, 4);
+    -fx-min-width: 180px;
+    -fx-min-height: 50px;
+}
+
+#returnToMenuButton:hover {
+    -fx-background-color: rgba(107, 114, 128, 0.95);
+    -fx-border-color: rgba(139, 92, 246, 0.8);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.7), 18, 0.4, 0, 6);
+}
+
 /* Enhanced victory message with golden glow */
 #winLabel {
     -fx-font-family: 'Uncial Antiqua', cursive;
@@ -279,7 +384,7 @@
 /* Enhanced enemy info label with improved readability */
 #infoLabel {
     -fx-font-family: 'Cinzel', serif;
-    -fx-font-size: 16px;
+    -fx-font-size: 22px;
     -fx-font-weight: 600;
     -fx-text-fill: -fx-text-primary;
     -fx-background-color: rgba(31, 31, 46, 0.9);
@@ -294,40 +399,12 @@
     -fx-wrap-text: true;
 }
 
-/* Damage display label - new styling */
-.label:contains("You dealt"), .label:contains("You took") {
-    -fx-font-family: 'MedievalSharp', cursive;
-    -fx-font-size: 16px;
-    -fx-font-weight: 600;
-    -fx-text-fill: -fx-text-warning;
-    -fx-background-color: rgba(251, 191, 36, 0.1);
-    -fx-background-radius: 10;
-    -fx-border-color: rgba(251, 191, 36, 0.3);
-    -fx-border-width: 1;
-    -fx-border-radius: 10;
-    -fx-padding: 10;
-    -fx-effect: dropshadow(gaussian, rgba(251, 191, 36, 0.3), 8, 0.2, 0, 2);
-}
-
-/* Potion buttons styling */
-.button:contains("Basic Potion"), .button:contains("Max Potion") {
-    -fx-background-color: rgba(16, 185, 129, 0.8);
-    -fx-border-color: rgba(52, 211, 153, 0.6);
-    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 10, 0.3, 0, 4);
-}
-
-.button:contains("Basic Potion"):hover, .button:contains("Max Potion"):hover {
-    -fx-background-color: rgba(5, 150, 105, 0.9);
-    -fx-border-color: rgba(52, 211, 153, 0.8);
-    -fx-effect: dropshadow(gaussian, rgba(5, 150, 105, 0.6), 15, 0.4, 0, 6);
-}
-
 /* Enhanced scene styling */
 .scene {
     -fx-font-family: 'MedievalSharp', cursive;
 }
 
-/* New enhanced visual effects */
+/* Enhanced visual effects */
 .combat-flash {
     -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.95), 25, 0.5, 0, 0);
 }
@@ -361,14 +438,14 @@
     -fx-border-width: 1;
 }
 
-/* New accessibility enhancements */
+/* Accessibility enhancements */
 .button:focused {
     -fx-border-color: rgba(196, 181, 253, 0.9);
     -fx-border-width: 3;
     -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.8), 15, 0.4, 0, 0);
 }
 
-/* Health bar styling (if you want to add visual health bars) */
+/* Health bar styling */
 .health-bar {
     -fx-background-color: rgba(220, 38, 38, 0.8);
     -fx-background-radius: 10;
@@ -407,28 +484,4 @@
     -fx-font-size: 12px;
     -fx-padding: 8;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 10, 0.3, 0, 3);
-}
-
-/* Responsive design improvements */
-@media (max-width: 600px) {
-    .combat-container {
-        -fx-max-width: 95%;
-        -fx-padding: 20;
-        -fx-min-height: 380px;
-    }
-
-    .button {
-        -fx-min-width: 130px;
-        -fx-font-size: 14px;
-        -fx-min-height: 42px;
-    }
-
-    .label {
-        -fx-font-size: 15px;
-    }
-
-    #adventurerLabel, #currentMonsterShortLabel {
-        -fx-font-size: 16px;
-        -fx-padding: 12;
-    }
 }

@@ -19,7 +19,6 @@ public class Gameplay {
     String url, user, password;
     private Stage primaryStage;
     private Adventurer currentAdventurer;
-    private VBox currentRoot;
     Random random = new Random();
 
     public Gameplay(Stage primaryStage, Adventurer currentAdventurer, String url, String user, String password) {
@@ -30,7 +29,7 @@ public class Gameplay {
         this.currentAdventurer = currentAdventurer;
     }
 
-    private void saveProgress(Enemy currentEnemy){
+    private void saveProgress(@NotNull Enemy currentEnemy){
         currentAdventurer.setLevel(currentAdventurer.getLevel() + currentEnemy.getDropExp() / 1000);
         currentAdventurer.setExp(currentAdventurer.getExp() + currentEnemy.getDropExp() % 1000);
         currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() + currentEnemy.getDropBasic());
@@ -58,6 +57,7 @@ public class Gameplay {
 
     }
 
+    @NotNull
     private Enemy chooseEnemy() throws SQLException {
         int randomId = random.nextInt(1, 10);
         Enemy currentEnemy = new Enemy();
@@ -91,7 +91,8 @@ public class Gameplay {
 
     public void Game() throws SQLException {
         final Enemy[] currentEnemy = {chooseEnemy()};
-        Label damageLabel = new Label("");
+        Label damageLabel = new Label("Combat will begin when you attack!");
+        damageLabel.setId("damageLabel");
 
         Label adventurerLabel = new Label("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
         adventurerLabel.setId("adventurerLabel");
@@ -157,9 +158,9 @@ public class Gameplay {
         });
 
         attackButton.setOnAction(e -> {
-            double criticalHitNumber = random.nextDouble(0, 1);
+            double criticalHitNumber = random.nextInt(0, 100);
             int damage = currentAdventurer.getAttack();
-            if(criticalHitNumber >= 0.9){
+            if(criticalHitNumber >= 90){
                 damage *= 2;
             }
             currentEnemy[0].setHp(currentEnemy[0].getHp() - damage);
@@ -209,7 +210,7 @@ public class Gameplay {
             }
 
             currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
-            damageLabel.setText("You dealt: " + criticalHitNumber + "\n" + "You took: " + currentEnemy[0].getDamage());
+            damageLabel.setText("⚔ You dealt: " + damage + (criticalHitNumber >= 90 ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
             adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Damage: " + currentAdventurer.getAttack());
         });
 
@@ -263,7 +264,7 @@ public class Gameplay {
 
             useMaxPotionButton.setOnAction(action -> {
                 if(currentAdventurer.getMaxPotions() > 0 && currentAdventurer.getHp() < currentAdventurer.getMaxHp()){
-                    currentAdventurer.setMaxPotions((currentAdventurer.getMaxPotions() - 1) % currentAdventurer.getMaxHp());
+                    currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() - 1);
                     maxPotionLabel.setText("Max Potions: " + currentAdventurer.getMaxPotions());
                     int newAdventurerHealth = currentAdventurer.getHp() + 40;
                     if(newAdventurerHealth > currentAdventurer.getMaxHp())  newAdventurerHealth = currentAdventurer.getMaxHp();
@@ -276,7 +277,7 @@ public class Gameplay {
             infoLabel.setId("infoLabel");
         });
 
-        Scene mainScene = new Scene(centerContainer, 600, 500);
+        Scene mainScene = new Scene(centerContainer, 700, 600);
         mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Gameplay.css")).toExternalForm());
         primaryStage.setScene(mainScene);
         primaryStage.setTitle("Adventure - Combat");
@@ -287,6 +288,7 @@ public class Gameplay {
         Button seeRunInfoButton = new Button("See your run info");
         seeRunInfoButton.setOnAction(actionEvent -> {
             Label runInfoLabel = new Label(currentAdventurer.toString());
+            runInfoLabel.setId("infoLabel");
 
             VBox runInfoLayout = new VBox(15);
             runInfoLayout.getStyleClass().add("combat-container");
