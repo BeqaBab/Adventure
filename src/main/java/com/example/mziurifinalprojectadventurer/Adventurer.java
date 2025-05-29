@@ -4,12 +4,14 @@ public class Adventurer {
     private String name, adventurerClass;
     private int level, exp, hp, attack, maxHp, id;
     private int basicPotions, maxPotions;
+    private Weapon currentWeapon;
 
     public Adventurer() {
         this.level = 1;
         this.exp = 0;
         this.basicPotions = 10;
         this.maxPotions = 5;
+        this.currentWeapon = new WoodenSword();
     }
 
     public int getMaxHp() {
@@ -92,6 +94,20 @@ public class Adventurer {
         this.maxHp = maxHp;
     }
 
+    public Weapon getCurrentWeapon() {
+        return currentWeapon;
+    }
+
+    public void setCurrentWeapon(Weapon weapon) {
+        this.currentWeapon = weapon;
+    }
+
+    public void checkAndUpgradeWeapon() {
+        if (level >= 10 && !(currentWeapon instanceof MagicStaff)) {
+            currentWeapon = new MagicStaff();
+        }
+    }
+
     @Override
     public String toString() {
         return "Name = " + name + '\n' +
@@ -101,6 +117,7 @@ public class Adventurer {
                 "Attack = " + attack + '\n' +
                 "MaxHp = " + maxHp + '\n' +
                 "BasicPotions = " + basicPotions + '\n' +
-                "MaxPotions = " + maxPotions;
+                "MaxPotions = " + maxPotions + '\n' +
+                "Weapon = " + currentWeapon;
     }
 }

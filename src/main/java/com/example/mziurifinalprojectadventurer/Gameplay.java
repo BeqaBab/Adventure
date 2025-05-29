@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.Random;
 
 public class Gameplay {
-    String url, user, password;
+    private String url, user, password;
     private Stage primaryStage;
     private Adventurer currentAdventurer;
     Random random = new Random();
@@ -29,20 +29,12 @@ public class Gameplay {
         this.currentAdventurer = currentAdventurer;
     }
 
-    @NotNull
-    private String getWeaponName() {
-        return currentAdventurer.getLevel() < 10 ? "🗡Wooden Sword" : "Magic Staff";
-    }
-
-    private int getWeaponDamage() {
-        return currentAdventurer.getLevel() < 10 ? 15 : 30;
-    }
-
     private void saveProgress(@NotNull Enemy currentEnemy){
         currentAdventurer.setLevel(currentAdventurer.getLevel() + currentEnemy.getDropExp() / 1000);
         currentAdventurer.setExp(currentAdventurer.getExp() + currentEnemy.getDropExp() % 1000);
         currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() + currentEnemy.getDropBasic());
         currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() + currentEnemy.getDropMax());
+        currentAdventurer.checkAndUpgradeWeapon();
         if(currentAdventurer.getExp() + currentEnemy.getDropExp() > 1000){
             currentAdventurer.setHp(currentAdventurer.getHp() + 10);
             currentAdventurer.setAttack(currentAdventurer.getAttack() + 10);
@@ -112,7 +104,7 @@ public class Gameplay {
         Label damageLabel = new Label("Combat will begin when you attack!");
         damageLabel.setId("damageLabel");
 
-        Label adventurerLabel = new Label("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
+        Label adventurerLabel = new Label("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
         adventurerLabel.setId("adventurerLabel");
 
         Label currentMonsterShortLabel = new Label(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
@@ -179,11 +171,8 @@ public class Gameplay {
         });
 
         attackButton.setOnAction(e -> {
-            double criticalHitNumber = random.nextInt(0, 100);
-            int damage = getWeaponDamage();
-            if(criticalHitNumber >= 90){
-                damage *= 2;
-            }
+            Weapon weapon = currentAdventurer.getCurrentWeapon();
+            int damage = weapon.calculateDamage(random);
             currentEnemy[0].setHp(currentEnemy[0].getHp() - damage);
             currentAdventurer.setHp(currentAdventurer.getHp() - currentEnemy[0].getDamage());
 
@@ -211,7 +200,7 @@ public class Gameplay {
                 Label winLabel = new Label("Victory! You defeated " + currentEnemy[0].getName() + "\n Your progress has been saved!");
                 winLabel.setId("winLabel");
                 saveProgress(currentEnemy[0]);
-                adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
+                adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
 
                 try {
                     currentEnemy[0] = chooseEnemy();
@@ -235,8 +224,8 @@ public class Gameplay {
             }
 
             currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
-            damageLabel.setText("⚔ " + getWeaponName() + " dealt: " + damage + (criticalHitNumber >= 90 ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
-            adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
+            damageLabel.setText("⚔ " + weapon.getName() + " dealt: " + (damage > weapon.getBaseDamage() ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
+            adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + weapon.getName());
         });
 
         showEnemyInfoButton.setOnAction(e -> {
@@ -283,7 +272,7 @@ public class Gameplay {
                     int newAdventurerHealth = currentAdventurer.getHp() + 20;
                     if(newAdventurerHealth > currentAdventurer.getMaxHp())  newAdventurerHealth = currentAdventurer.getMaxHp();
                     currentAdventurer.setHp(newAdventurerHealth);
-                    adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
+                    adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
                 } else infoLabel.setText("You don't have any basic potions left.");
             });
 
@@ -294,7 +283,7 @@ public class Gameplay {
                     int newAdventurerHealth = currentAdventurer.getHp() + 40;
                     if(newAdventurerHealth > currentAdventurer.getMaxHp())  newAdventurerHealth = currentAdventurer.getMaxHp();
                     currentAdventurer.setHp(newAdventurerHealth);
-                    adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + getWeaponName());
+                    adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
                 } else infoLabel.setText("You don't have any max potions left.");
             });
 
