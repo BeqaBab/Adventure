@@ -156,21 +156,23 @@ public class Gameplay {
         setUpLabels(currentEnemy[0]);
         setUpButtons();
 
-        VBox statusPanel = new VBox(10);
-        statusPanel.getStyleClass().add("status-panel");
-        statusPanel.getChildren().addAll(damageLabel, adventurerLabel, currentMonsterShortLabel);
+        Scene mainScene = createMainScene(currentEnemy);
+        primaryStage.setScene(mainScene);
+        primaryStage.setTitle("Adventure - Combat");
+    }
 
-        HBox primaryActions = new HBox(10);
-        primaryActions.setAlignment(Pos.CENTER);
-        primaryActions.getChildren().addAll(attackButton, useAnItemButton);
+    private Scene createMainScene(Enemy[] currentEnemy) {
+        StackPane centerContainer = createMainContainer(currentEnemy);
+        setupButtonActions(currentEnemy, centerContainer);
 
-        HBox secondaryActions = new HBox(10);
-        secondaryActions.setAlignment(Pos.CENTER);
-        secondaryActions.getChildren().addAll(showEnemyInfoButton, runButton);
+        Scene mainScene = new Scene(centerContainer, 700, 600);
+        mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Gameplay.css")).toExternalForm());
+        return mainScene;
+    }
 
-        VBox actionPanel = new VBox(8);
-        actionPanel.getStyleClass().add("action-panel");
-        actionPanel.getChildren().addAll(primaryActions, secondaryActions);
+    private StackPane createMainContainer(Enemy[] currentEnemy) {
+        VBox statusPanel = createStatusPanel();
+        VBox actionPanel = createActionPanel();
 
         VBox mainRoot = new VBox(20);
         mainRoot.getStyleClass().add("combat-container");
@@ -179,16 +181,45 @@ public class Gameplay {
         StackPane centerContainer = new StackPane();
         centerContainer.getChildren().add(mainRoot);
         centerContainer.setAlignment(Pos.CENTER);
+        return centerContainer;
+    }
 
+    private VBox createStatusPanel() {
+        VBox statusPanel = new VBox(10);
+        statusPanel.getStyleClass().add("status-panel");
+        statusPanel.getChildren().addAll(damageLabel, adventurerLabel, currentMonsterShortLabel);
+        return statusPanel;
+    }
+
+    private VBox createActionPanel() {
+        HBox primaryActions = createPrimaryActions();
+        HBox secondaryActions = createSecondaryActions();
+
+        VBox actionPanel = new VBox(8);
+        actionPanel.getStyleClass().add("action-panel");
+        actionPanel.getChildren().addAll(primaryActions, secondaryActions);
+        return actionPanel;
+    }
+
+    private HBox createPrimaryActions() {
+        HBox primaryActions = new HBox(10);
+        primaryActions.setAlignment(Pos.CENTER);
+        primaryActions.getChildren().addAll(attackButton, useAnItemButton);
+        return primaryActions;
+    }
+
+    private HBox createSecondaryActions() {
+        HBox secondaryActions = new HBox(10);
+        secondaryActions.setAlignment(Pos.CENTER);
+        secondaryActions.getChildren().addAll(showEnemyInfoButton, runButton);
+        return secondaryActions;
+    }
+
+    private void setupButtonActions(Enemy[] currentEnemy, StackPane centerContainer) {
         runButton.setOnAction(e -> handleRunButtonAction());
         attackButton.setOnAction(e -> handleAttackButtonAction(currentEnemy, centerContainer));
         showEnemyInfoButton.setOnAction(e -> handleShowEnemyInfoButtonAction(currentEnemy[0], centerContainer));
         useAnItemButton.setOnAction(e -> handleUseItemButtonAction(centerContainer));
-
-        Scene mainScene = new Scene(centerContainer, 700, 600);
-        mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Gameplay.css")).toExternalForm());
-        primaryStage.setScene(mainScene);
-        primaryStage.setTitle("Adventure - Combat");
     }
 
     private void handleRunButtonAction() {
