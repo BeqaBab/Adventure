@@ -9,14 +9,11 @@ import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
-import java.util.List;
 import java.util.Objects;
 
 public class LoginPage {
-    private final String url;
-    private final String user;
-    private final String password;
     private final Stage primaryStage;
+    private final BaseConnection baseConnection;
     private VBox currentRoot;
     private Adventurer currentAdventurer = new Adventurer();
 
@@ -30,10 +27,8 @@ public class LoginPage {
     private ChoiceBox<String> registrationClassChoiceBox;
     private Label registrationMessageLabel;
 
-    public LoginPage(String url, String user, String password, Stage primaryStage) {
-        this.url = url;
-        this.user = user;
-        this.password = password;
+    public LoginPage(BaseConnection baseConnection, Stage primaryStage) {
+        this.baseConnection = baseConnection;
         this.primaryStage = primaryStage;
     }
 
@@ -49,46 +44,7 @@ public class LoginPage {
 
         Adventurer newAdventurer = createNewAdventurer(username, adventurerClass);
 
-        try (Connection connection = DriverManager.getConnection(url, user, password)){
-            String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_level, adventurer_exp, adventurer_HP adventurer_class, adventurer_password, max_health) VALUES(?, 1, 0, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
-                stmt.setString(1, username);
-                stmt.setInt(2, newAdventurer.getMaxHp());
-                stmt.setString(3, adventurerClass);
-                stmt.setLong(4, hash(userPassword));
-                stmt.setInt(5, newAdventurer.getMaxHp());
-
-                int rowsAffected = stmt.executeUpdate();
-                if (rowsAffected > 0) {
-                    try (ResultSet rs = stmt.getGeneratedKeys()) {
-                        if (rs.next()) {
-                            int id = rs.getInt(1);
-                            newAdventurer.setId(id);
-
-                            Weapon weapon = new Weapon();
-                            weapon.setUrl(url);
-                            weapon.setUser(user);
-                            weapon.setPassword(password);
-
-                            List<Weapon> startingWeapons = weapon.getWeaponsByLevel(1);
-                            if (!startingWeapons.isEmpty()) {
-                                String updateQuery = "UPDATE adventurer SET weapon_id = ? WHERE adventurer_id = ?";
-                                try (PreparedStatement updateStmt = connection.prepareStatement(updateQuery)) {
-                                    updateStmt.setInt(1, startingWeapons.getFirst().getId());
-                                    updateStmt.setInt(2, id);
-                                    updateStmt.executeUpdate();
-                                }
-                            }
-                            registrationMessageLabel.setText("User added successfully!");
-                        }
-                    }
-                } else {
-                    registrationMessageLabel.setText("User couldn't be added.");
-                }
-            }
-        } catch (SQLException ex) {
-            registrationMessageLabel.setText("User couldn't be added. Please try a different name.");
-        }
+        baseConnection.newAccount(username,adventurerClass, newAdventurer, hash(userPassword), registrationMessageLabel);
         registrationPasswordField.clear();
     }
 
@@ -119,73 +75,11 @@ public class LoginPage {
         String username = loginNameField.getText();
         String userPassword = loginPasswordField.getText();
         String adventurerClass = loginClassChoiceBox.getValue();
-        Connection connection = DriverManager.getConnection(url, user, password);
-        try {
-            String checkQuery = "SELECT adventurer_password FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?";
-            try (PreparedStatement stmt = connection.prepareStatement(checkQuery)) {
-                stmt.setString(1, username);
-                stmt.setString(2, adventurerClass);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (!rs.next()) {
-                        loginMessageLabel.setText("Account doesn't exist");
-                        loginPasswordField.clear();
-                        return;
-                    }
-
-                    long storedPassword = rs.getLong("adventurer_password");
-                    if (userPassword.isBlank() || storedPassword == 0) {
-                        loginMessageLabel.setText("Please enter password");
-                        loginPasswordField.clear();
-                        return;
-                    }
-                    if (storedPassword != hash(userPassword)) {
-                        loginMessageLabel.setText("Wrong password");
-                        loginPasswordField.clear();
-                        return;
-                    }
-                }
-            }
-
-            String selectQuery = "SELECT * FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?";
-            PreparedStatement stmt = connection.prepareStatement(selectQuery);
-            try {
-                stmt.setString(1, username);
-                stmt.setString(2, adventurerClass);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        loadAdventurerData(rs);
-                        Weapon weapon = new Weapon();
-                        weapon.setUrl(url);
-                        weapon.setUser(user);
-                        weapon.setPassword(password);
-                        currentAdventurer.setCurrentWeapon(weapon.getWeaponById(currentAdventurer.getWeaponId()));
-                        currentAdventurer.getCurrentWeapon().setUrl(url);
-                        currentAdventurer.getCurrentWeapon().setUser(user);
-                        currentAdventurer.getCurrentWeapon().setPassword(password);
-                        Gameplay gameplay = new Gameplay(url, user, password, primaryStage, currentAdventurer);
-                        gameplay.Game();
-                        currentAdventurer.checkAndUpgradeWeapon();
-                    }
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void loadAdventurerData(ResultSet rs) throws SQLException {
-        currentAdventurer.setId(rs.getInt("adventurer_id"));
-        currentAdventurer.setName(rs.getString("adventurer_name"));
-        currentAdventurer.setLevel(rs.getInt("adventurer_level"));
-        currentAdventurer.setExp(rs.getInt("adventurer_exp"));
-        currentAdventurer.setHp(rs.getInt("adventurer_hp"));
-        currentAdventurer.setBasicPotions(rs.getInt("basic_potions"));
-        currentAdventurer.setMaxPotions(rs.getInt("max_potions"));
-        currentAdventurer.setAdventurerClass(rs.getString("adventurer_class"));
-        currentAdventurer.setMaxHp(rs.getInt("max_health"));
-        currentAdventurer.setWeaponId(rs.getInt("weapon_id"));
+        currentAdventurer = baseConnection.loginToExistingAccount(username, adventurerClass, hash(userPassword), loginMessageLabel, userPassword, loginPasswordField);
+        currentAdventurer.setCurrentWeapon(baseConnection.getWeaponById(currentAdventurer.getWeaponId()));
+        Gameplay gameplay = new Gameplay(baseConnection, primaryStage, currentAdventurer);
+        gameplay.Game();
+        currentAdventurer.checkAndUpgradeWeapon(baseConnection);
     }
 
     public static long hash(@NotNull String s){

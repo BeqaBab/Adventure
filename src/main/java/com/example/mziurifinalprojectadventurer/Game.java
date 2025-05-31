@@ -33,8 +33,9 @@ public class Game extends Application {
         String url = "jdbc:postgresql://localhost:5432/Adventure";
         String user = "postgres";
         String password = Initiate();
+        BaseConnection baseConnection = new BaseConnection(url, user, password);
         Button authorisationButton = new Button("Start to play");
-        LoginPage loginPage = new LoginPage(url, user, password, primaryStage);
+        LoginPage loginPage = new LoginPage(baseConnection, primaryStage);
         authorisationButton.setOnAction(e -> {
             loginPage.authorisation();
             primaryStage.setTitle("Authorisation page");

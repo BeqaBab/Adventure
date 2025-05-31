@@ -35,12 +35,10 @@ public class Gameplay {
     private Button showEnemyInfoButton = new Button("🔍 Enemy Info");
     private Button useAnItemButton = new Button("Use Item");
     private Button runButton = new Button("🏃 Flee");
-    private String url, user, password;
+    private final BaseConnection baseConnection;
 
-    public Gameplay(String url, String user, String password, Stage primaryStage, Adventurer currentAdventurer) throws SQLException {
-        this.url = url;
-        this.user = user;
-        this.password = password;
+    public Gameplay(BaseConnection baseConnection, Stage primaryStage, Adventurer currentAdventurer) throws SQLException {
+        this.baseConnection = baseConnection;
         this.primaryStage = primaryStage;
         this.currentAdventurer = currentAdventurer;
     }
@@ -67,13 +65,12 @@ public class Gameplay {
             currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() + currentEnemy.getDropBasic());
             currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() + currentEnemy.getDropMax());
 
-            currentAdventurer.checkAndUpgradeWeapon();
+            currentAdventurer.checkAndUpgradeWeapon(baseConnection);
             adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
             String updateQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, basic_potions = ?, max_potions = ?, max_health = ?, weapon_id = ? WHERE adventurer_id = ?";
 
             try{
-                Connection connection = DriverManager.getConnection(url, user, password);
-                PreparedStatement stmt = connection.prepareStatement(updateQuery);
+                PreparedStatement stmt = baseConnection.getConnection().prepareStatement(updateQuery);
                 stmt.setInt(1, currentAdventurer.getLevel());
                 stmt.setInt(2, currentAdventurer.getExp());
                 stmt.setInt(3, currentAdventurer.getHp());
@@ -112,9 +109,8 @@ public class Gameplay {
         int randomId = random.nextInt(1, 10);
         Enemy currentEnemy;
         try {
-            Connection connection = DriverManager.getConnection(url, user, password);
             String insertQuery = "SELECT * FROM monsters WHERE monster_id = ?;";
-            PreparedStatement stmt = connection.prepareStatement(insertQuery);
+            PreparedStatement stmt = baseConnection.getConnection().prepareStatement(insertQuery);
             stmt.setInt(1, randomId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -138,8 +134,7 @@ public class Gameplay {
     public void deleteProgress(){
         try{
             String insertQuery = "DELETE FROM adventurer WHERE adventurer_id = ?;";
-            Connection connection = DriverManager.getConnection(url, user, password);
-            PreparedStatement stmt = connection.prepareStatement(insertQuery);
+            PreparedStatement stmt = baseConnection.getConnection().prepareStatement(insertQuery);
             stmt.setInt(1, currentAdventurer.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {

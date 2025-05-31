@@ -30,8 +30,6 @@ public class Adventurer {
     public int getMaxHp() { return maxHp; }
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-    public String getName() { return name; }
-    public String getAdventurerClass() { return adventurerClass; }
     public int getLevel() { return level; }
     public int getExp() { return exp; }
     public int getHp() { return hp; }
@@ -55,8 +53,8 @@ public class Adventurer {
         }
     }
 
-    public void checkAndUpgradeWeapon() throws SQLException {
-        List<Weapon> availableWeapons = currentWeapon.getWeaponsByLevel(this.level);
+    public void checkAndUpgradeWeapon(BaseConnection baseConnection) throws SQLException {
+        List<Weapon> availableWeapons = baseConnection.getWeaponsByLevel(this.level);
         Weapon bestWeapon = availableWeapons.stream()
                 .max(Comparator.comparingInt(Weapon::getDamage))
                 .orElse(currentWeapon);
