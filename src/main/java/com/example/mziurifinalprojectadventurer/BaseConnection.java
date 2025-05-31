@@ -2,9 +2,12 @@ package com.example.mziurifinalprojectadventurer;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import org.jetbrains.annotations.NotNull;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class BaseConnection {
     private final String url;
@@ -176,5 +179,61 @@ public class BaseConnection {
         weapon.setDamage(rs.getInt("weapon_damage"));
         weapon.setLevelRequirement(rs.getInt("weapon_level_requirement"));
         return weapon;
+    }
+
+    public void saveProgressToDataBase(Adventurer currentAdventurer){
+        String updateQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, basic_potions = ?, max_potions = ?, max_health = ?, weapon_id = ? WHERE adventurer_id = ?";
+        try{
+            PreparedStatement stmt = getConnection().prepareStatement(updateQuery);
+            stmt.setInt(1, currentAdventurer.getLevel());
+            stmt.setInt(2, currentAdventurer.getExp());
+            stmt.setInt(3, currentAdventurer.getHp());
+            stmt.setInt(4, currentAdventurer.getBasicPotions());
+            stmt.setInt(5, currentAdventurer.getMaxPotions());
+            stmt.setInt(6, currentAdventurer.getMaxHp());
+            stmt.setInt(7, currentAdventurer.getWeaponId());
+            stmt.setInt(8, currentAdventurer.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @NotNull
+    public Enemy chooseEnemy(){
+        Random random = new Random();
+        int randomId = random.nextInt(1, 10);
+        Enemy currentEnemy;
+        try {
+            String insertQuery = "SELECT * FROM monsters WHERE monster_id = ?;";
+            PreparedStatement stmt = getConnection().prepareStatement(insertQuery);
+            stmt.setInt(1, randomId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                currentEnemy = new Enemy();
+                currentEnemy.setName(rs.getString("monster_name"));
+                currentEnemy.setDamage(rs.getInt("monster_damage"));
+                currentEnemy.setHp(rs.getInt("monster_hp"));
+                currentEnemy.setDropBasic(rs.getInt("monster_drop_basic"));
+                currentEnemy.setDropMax(rs.getInt("monster_drop_max"));
+                currentEnemy.setDropExp(rs.getInt("monster_drop_exp"));
+            } else {
+                throw new SQLException("No monster found with ID: " + randomId);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return currentEnemy;
+    }
+
+    public void deleteProgress(Adventurer currentAdventurer){
+        try{
+            String insertQuery = "DELETE FROM adventurer WHERE adventurer_id = ?;";
+            PreparedStatement stmt = getConnection().prepareStatement(insertQuery);
+            stmt.setInt(1, currentAdventurer.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

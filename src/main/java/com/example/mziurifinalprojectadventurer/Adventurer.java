@@ -69,7 +69,6 @@ public class Adventurer {
                 "Class: " + adventurerClass + "\n" +
                 "Level: " + level + "\n" +
                 "Exp: " + exp + "\n" +
-                "HP: " + hp + "/" + maxHp + "\n" +
                 "Potions: " + basicPotions + " basic, " + maxPotions + " max\n" +
                 "Weapon: " + (currentWeapon != null ? currentWeapon.toString() : "None");
     }

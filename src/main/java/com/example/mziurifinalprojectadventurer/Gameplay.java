@@ -67,22 +67,7 @@ public class Gameplay {
 
             currentAdventurer.checkAndUpgradeWeapon(baseConnection);
             adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
-            String updateQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, basic_potions = ?, max_potions = ?, max_health = ?, weapon_id = ? WHERE adventurer_id = ?";
-
-            try{
-                PreparedStatement stmt = baseConnection.getConnection().prepareStatement(updateQuery);
-                stmt.setInt(1, currentAdventurer.getLevel());
-                stmt.setInt(2, currentAdventurer.getExp());
-                stmt.setInt(3, currentAdventurer.getHp());
-                stmt.setInt(4, currentAdventurer.getBasicPotions());
-                stmt.setInt(5, currentAdventurer.getMaxPotions());
-                stmt.setInt(6, currentAdventurer.getMaxHp());
-                stmt.setInt(7, currentAdventurer.getWeaponId());
-                stmt.setInt(8, currentAdventurer.getId());
-                stmt.executeUpdate();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            baseConnection.saveProgressToDataBase(currentAdventurer);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -104,44 +89,6 @@ public class Gameplay {
         runButton.setId("runButton");
     }
 
-    @NotNull
-    private Enemy chooseEnemy() throws SQLException {
-        int randomId = random.nextInt(1, 10);
-        Enemy currentEnemy;
-        try {
-            String insertQuery = "SELECT * FROM monsters WHERE monster_id = ?;";
-            PreparedStatement stmt = baseConnection.getConnection().prepareStatement(insertQuery);
-            stmt.setInt(1, randomId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                currentEnemy = new Enemy();
-                currentEnemy.setName(rs.getString("monster_name"));
-                currentEnemy.setDamage(rs.getInt("monster_damage"));
-                currentEnemy.setHp(rs.getInt("monster_hp"));
-                currentEnemy.setDropBasic(rs.getInt("monster_drop_basic"));
-                currentEnemy.setDropMax(rs.getInt("monster_drop_max"));
-                currentEnemy.setDropExp(rs.getInt("monster_drop_exp"));
-            } else {
-                throw new SQLException("No monster found with ID: " + randomId);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return currentEnemy;
-    }
-
-    public void deleteProgress(){
-        try{
-            String insertQuery = "DELETE FROM adventurer WHERE adventurer_id = ?;";
-            PreparedStatement stmt = baseConnection.getConnection().prepareStatement(insertQuery);
-            stmt.setInt(1, currentAdventurer.getId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private void returnToStartingPage() {
         try {
             Game gameApp = new Game();
@@ -152,7 +99,7 @@ public class Gameplay {
     }
 
     public void Game() throws SQLException {
-        final Enemy[] currentEnemy = {chooseEnemy()};
+        final Enemy[] currentEnemy = {baseConnection.chooseEnemy()};
         setUpLabels(currentEnemy[0]);
         setUpButtons();
 
@@ -241,7 +188,7 @@ public class Gameplay {
         shameContainer.getChildren().add(shameLayout);
         shameContainer.setAlignment(Pos.CENTER);
 
-        deleteProgress();
+        baseConnection.deleteProgress(currentAdventurer);
 
         primaryStage.getScene().setRoot(shameContainer);
     }
@@ -282,7 +229,7 @@ public class Gameplay {
         StackPane loseContainer = new StackPane();
         loseContainer.getChildren().add(loseLayout);
         loseContainer.setAlignment(Pos.CENTER);
-        deleteProgress();
+        baseConnection.deleteProgress(currentAdventurer);
 
         primaryStage.getScene().setRoot(loseContainer);
     }
@@ -292,14 +239,10 @@ public class Gameplay {
         winLabel.setId("winLabel");
         saveProgress(currentEnemy[0]);
 
-        try {
-            currentEnemy[0] = chooseEnemy();
-            adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
-            currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
-            damageLabel.setText("Combat will begin when you attack!");
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        currentEnemy[0] = baseConnection.chooseEnemy();
+        adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
+        currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
+        damageLabel.setText("Combat will begin when you attack!");
 
         Button continueButton = new Button("Continue Adventure →");
         continueButton.setId("continueButton");
@@ -338,47 +281,75 @@ public class Gameplay {
     }
 
     private void handleUseItemButtonAction(StackPane centerContainer) {
+        initializePotionLabels();
+        Button useBasicPotionButton = createBasicPotionButton();
+        Button useMaxPotionButton = createMaxPotionButton();
+        Button backButton = createBackButton(centerContainer);
+
+        setupPotionUI(useBasicPotionButton, useMaxPotionButton, backButton);
+    }
+
+    private void initializePotionLabels() {
         potionInfoLabel.setText("Remaining potions:");
         basicPotionLabel.setText("Basic Potions: " + currentAdventurer.getBasicPotions());
         maxPotionLabel.setText("Max Potions: " + currentAdventurer.getMaxPotions());
-        Button useBasicPotionButton = new Button("Use Basic Potion");
-        Button useMaxPotionButton = new Button("Use Max Potion");
-        Button backButton = new Button("← Back to Combat");
-        backButton.setId("backButton");
+    }
 
-        VBox itemLayout = new VBox(15);
-        itemLayout.setAlignment(Pos.CENTER);
-        itemLayout.setAlignment(Pos.CENTER);
-        itemLayout.getChildren().addAll(potionInfoLabel, basicPotionLabel, maxPotionLabel, useBasicPotionButton, useMaxPotionButton, backButton);
-        StackPane potionsContainer = new StackPane();
-        potionsContainer.getChildren().addAll(itemLayout);
-        potionsContainer.setAlignment(Pos.CENTER);
-        primaryStage.getScene().setRoot(potionsContainer);
-
-        useBasicPotionButton.setOnAction(action -> {
-            if(currentAdventurer.getBasicPotions() > 0 && currentAdventurer.getHp() < currentAdventurer.getMaxHp()){
-                currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() - 1 );
+    private Button createBasicPotionButton() {
+        Button button = new Button("Use Basic Potion");
+        button.setOnAction(action -> {
+            if (currentAdventurer.getBasicPotions() > 0 && currentAdventurer.getHp() < currentAdventurer.getMaxHp()) {
+                currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() - 1);
                 basicPotionLabel.setText("Basic Potions: " + currentAdventurer.getBasicPotions());
-                int newAdventurerHealth = currentAdventurer.getHp() + 20;
-                if(newAdventurerHealth > currentAdventurer.getMaxHp())  newAdventurerHealth = currentAdventurer.getMaxHp();
-                currentAdventurer.setHp(newAdventurerHealth);
+                int newHealth = Math.min(currentAdventurer.getHp() + 20, currentAdventurer.getMaxHp());
+                currentAdventurer.setHp(newHealth);
                 adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
-            } else infoLabel.setText("You don't have any basic potions left.");
+            } else {
+                infoLabel.setText("You don't have any basic potions left.");
+            }
         });
+        return button;
+    }
 
-        useMaxPotionButton.setOnAction(action -> {
-            if(currentAdventurer.getMaxPotions() > 0 && currentAdventurer.getHp() < currentAdventurer.getMaxHp()){
+    private Button createMaxPotionButton() {
+        Button button = new Button("Use Max Potion");
+        button.setOnAction(action -> {
+            if (currentAdventurer.getMaxPotions() > 0 && currentAdventurer.getHp() < currentAdventurer.getMaxHp()) {
                 currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() - 1);
                 maxPotionLabel.setText("Max Potions: " + currentAdventurer.getMaxPotions());
-                int newAdventurerHealth = currentAdventurer.getHp() + 40;
-                if(newAdventurerHealth > currentAdventurer.getMaxHp())  newAdventurerHealth = currentAdventurer.getMaxHp();
-                currentAdventurer.setHp(newAdventurerHealth);
+                int newHealth = Math.min(currentAdventurer.getHp() + 40, currentAdventurer.getMaxHp());
+                currentAdventurer.setHp(newHealth);
                 adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
-            } else infoLabel.setText("You don't have any max potions left.");
+            } else {
+                infoLabel.setText("You don't have any max potions left.");
+            }
         });
+        return button;
+    }
 
-        backButton.setOnAction(action -> primaryStage.getScene().setRoot(centerContainer));
-        infoLabel.setId("infoLabel");
+    private Button createBackButton(StackPane centerContainer) {
+        Button button = new Button("← Back to Combat");
+        button.setId("backButton");
+        button.setOnAction(action -> primaryStage.getScene().setRoot(centerContainer));
+        return button;
+    }
+
+    private void setupPotionUI(Button useBasicPotionButton, Button useMaxPotionButton, Button backButton) {
+        VBox itemLayout = new VBox(15);
+        itemLayout.setAlignment(Pos.CENTER);
+        itemLayout.getChildren().addAll(
+                potionInfoLabel,
+                basicPotionLabel,
+                maxPotionLabel,
+                useBasicPotionButton,
+                useMaxPotionButton,
+                backButton
+        );
+
+        StackPane potionsContainer = new StackPane();
+        potionsContainer.getChildren().add(itemLayout);
+        potionsContainer.setAlignment(Pos.CENTER);
+        primaryStage.getScene().setRoot(potionsContainer);
     }
 
     @NotNull
