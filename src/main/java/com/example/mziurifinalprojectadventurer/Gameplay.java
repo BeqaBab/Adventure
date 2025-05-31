@@ -1,6 +1,7 @@
 package com.example.mziurifinalprojectadventurer;
 
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,9 +20,21 @@ public class Gameplay {
     private Stage primaryStage;
     private Adventurer currentAdventurer;
     private Random random = new Random();
-    private Label damageLabel = new Label(), adventurerLabel = new Label(), currentMonsterShortLabel = new Label(), shameLabel = new Label(), giveUpLabel = new Label(), loseLabel = new Label(), winLabel = new Label(), infoLabel = new Label(),
-            potionInfoLabel = new Label(), basicPotionLabel = new Label(), maxPotionLabel = new Label();
+    private Label damageLabel = new Label();
+    private Label adventurerLabel = new Label();
+    private Label currentMonsterShortLabel = new Label();
+    private Label shameLabel = new Label();
+    private Label giveUpLabel = new Label();
+    private Label loseLabel = new Label();
+    private Label winLabel = new Label();
+    private Label infoLabel = new Label();
+    private Label potionInfoLabel = new Label();
+    private Label basicPotionLabel = new Label();
+    private Label maxPotionLabel = new Label();
     private Button attackButton = new Button("⚔ Attack");
+    private Button showEnemyInfoButton = new Button("🔍 Enemy Info");
+    private Button useAnItemButton = new Button("Use Item");
+    private Button runButton = new Button("🏃 Flee");
     private String url, user, password;
 
     public Gameplay(String url, String user, String password, Stage primaryStage, Adventurer currentAdventurer) throws SQLException {
@@ -78,11 +91,26 @@ public class Gameplay {
         }
     }
 
+    private void setUpLabels(Enemy enemy){
+        damageLabel.setText("Combat will begin when you attack!");
+        damageLabel.setId("damageLabel");
+        adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
+        adventurerLabel.setId("adventurerLabel");
+        currentMonsterShortLabel.setText(enemy.getName() + " | HP: " + enemy.getHp());
+        currentMonsterShortLabel.setId("currentMonsterShortLabel");
+    }
+
+    private void setUpButtons(){
+        attackButton.setId("attackButton");
+        showEnemyInfoButton.setId("showEnemyInfoButton");
+        useAnItemButton.setId("useAnItemButton");
+        runButton.setId("runButton");
+    }
+
     @NotNull
     private Enemy chooseEnemy() throws SQLException {
         int randomId = random.nextInt(1, 10);
-        Enemy currentEnemy = new Enemy();
-
+        Enemy currentEnemy;
         try {
             Connection connection = DriverManager.getConnection(url, user, password);
             String insertQuery = "SELECT * FROM monsters WHERE monster_id = ?;";
@@ -130,23 +158,8 @@ public class Gameplay {
 
     public void Game() throws SQLException {
         final Enemy[] currentEnemy = {chooseEnemy()};
-        damageLabel.setText("Combat will begin when you attack!");
-        damageLabel.setId("damageLabel");
-        adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
-        adventurerLabel.setId("adventurerLabel");
-        currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
-        currentMonsterShortLabel.setId("currentMonsterShortLabel");
-
-        attackButton.setId("attackButton");
-
-        Button showEnemyInfoButton = new Button("🔍 Enemy Info");
-        showEnemyInfoButton.setId("showEnemyInfoButton");
-
-        Button useAnItemButton = new Button("Use Item");
-        useAnItemButton.setId("useAnItemButton");
-
-        Button runButton = new Button("🏃 Flee");
-        runButton.setId("runButton");
+        setUpLabels(currentEnemy[0]);
+        setUpButtons();
 
         VBox statusPanel = new VBox(10);
         statusPanel.getStyleClass().add("status-panel");
@@ -345,63 +358,84 @@ public class Gameplay {
     @NotNull
     private Button getButton(String context) {
         Button seeRunInfoButton = new Button("See your run info");
-        seeRunInfoButton.setOnAction(actionEvent -> {
-            Label runInfoLabel = new Label(currentAdventurer.toString());
-            runInfoLabel.setId("infoLabel");
-            Button backButton = new Button("← Back");
-            backButton.setId("backButton");
-            backButton.setOnAction(e -> {
-                if (context.equals("flee")) {
-                    Label shameLabel = new Label("You have fled from battle...");
-                    shameLabel.setId("shameLabel");
-                    Label giveUpLabel = new Label("There's no place for shame in this world");
-                    giveUpLabel.setId("giveUpLabel");
-                    Button returnToMenuButton = new Button("🏠 Return to Menu");
-                    returnToMenuButton.setId("returnToMenuButton");
-                    returnToMenuButton.setOnAction(action -> returnToStartingPage());
-
-                    Button seeRunInfoButtonAgain = getButton("flee");
-
-                    VBox shameLayout = new VBox(15);
-                    shameLayout.getStyleClass().add("combat-container");
-                    shameLayout.getChildren().addAll(shameLabel, giveUpLabel, seeRunInfoButtonAgain, returnToMenuButton);
-
-                    StackPane shameContainer = new StackPane();
-                    shameContainer.getChildren().add(shameLayout);
-                    shameContainer.setAlignment(Pos.CENTER);
-
-                    primaryStage.getScene().setRoot(shameContainer);
-                } else {
-                    Label loseLabel = new Label("Your journey ends here..." + "\nNo one gets a second chance");
-                    loseLabel.setId("loseLabel");
-                    Button seeRunInfoButtonAgain = getButton("lose");
-
-                    Button returnToMenuButton = new Button("🏠 Return to Menu");
-                    returnToMenuButton.setId("returnToMenuButton");
-                    returnToMenuButton.setOnAction(action -> returnToStartingPage());
-
-                    VBox loseLayout = new VBox(15);
-                    loseLayout.getStyleClass().add("combat-container");
-                    loseLayout.getChildren().addAll(loseLabel, seeRunInfoButtonAgain, returnToMenuButton);
-
-                    StackPane loseContainer = new StackPane();
-                    loseContainer.getChildren().add(loseLayout);
-                    loseContainer.setAlignment(Pos.CENTER);
-
-                    primaryStage.getScene().setRoot(loseContainer);
-                }
-            });
-
-            VBox runInfoLayout = new VBox(15);
-            runInfoLayout.getStyleClass().add("combat-container");
-            runInfoLayout.getChildren().addAll(runInfoLabel, backButton);
-
-            StackPane runInfoContainer = new StackPane();
-            runInfoContainer.getChildren().add(runInfoLayout);
-            runInfoContainer.setAlignment(Pos.CENTER);
-
-            primaryStage.getScene().setRoot(runInfoContainer);
-        });
+        seeRunInfoButton.setOnAction(actionEvent -> showRunInfoScreen(context));
         return seeRunInfoButton;
+    }
+
+    private void showRunInfoScreen(String context) {
+        Label runInfoLabel = new Label(currentAdventurer.toString());
+        runInfoLabel.setId("infoLabel");
+
+        Button backButton = new Button("← Back");
+        backButton.setId("backButton");
+        backButton.setOnAction(e -> handleBackAction(context));
+
+        VBox runInfoLayout = new VBox(15);
+        runInfoLayout.getStyleClass().add("combat-container");
+        runInfoLayout.getChildren().addAll(runInfoLabel, backButton);
+
+        StackPane runInfoContainer = new StackPane();
+        runInfoContainer.getChildren().add(runInfoLayout);
+        runInfoContainer.setAlignment(Pos.CENTER);
+
+        primaryStage.getScene().setRoot(runInfoContainer);
+    }
+
+    private void handleBackAction(String context) {
+        if (context.equals("flee")) {
+            showFleeScreen();
+        } else {
+            showLoseScreen();
+        }
+    }
+
+    private void showFleeScreen() {
+        Label shameLabel = new Label("You have fled from battle...");
+        shameLabel.setId("shameLabel");
+
+        Label giveUpLabel = new Label("There's no place for shame in this world");
+        giveUpLabel.setId("giveUpLabel");
+
+        Button returnToMenuButton = createReturnToMenuButton();
+        Button seeRunInfoButtonAgain = getButton("flee");
+
+        VBox shameLayout = createResultLayout(shameLabel, giveUpLabel, seeRunInfoButtonAgain, returnToMenuButton);
+        StackPane shameContainer = createContainer(shameLayout);
+
+        primaryStage.getScene().setRoot(shameContainer);
+    }
+
+    private void showLoseScreen() {
+        Label loseLabel = new Label("Your journey ends here..." + "\nNo one gets a second chance");
+        loseLabel.setId("loseLabel");
+
+        Button seeRunInfoButtonAgain = getButton("lose");
+        Button returnToMenuButton = createReturnToMenuButton();
+
+        VBox loseLayout = createResultLayout(loseLabel, seeRunInfoButtonAgain, returnToMenuButton);
+        StackPane loseContainer = createContainer(loseLayout);
+
+        primaryStage.getScene().setRoot(loseContainer);
+    }
+
+    private Button createReturnToMenuButton() {
+        Button returnToMenuButton = new Button("🏠 Return to Menu");
+        returnToMenuButton.setId("returnToMenuButton");
+        returnToMenuButton.setOnAction(action -> returnToStartingPage());
+        return returnToMenuButton;
+    }
+
+    private VBox createResultLayout(Node... children) {
+        VBox layout = new VBox(15);
+        layout.getStyleClass().add("combat-container");
+        layout.getChildren().addAll(children);
+        return layout;
+    }
+
+    private StackPane createContainer(VBox layout) {
+        StackPane container = new StackPane();
+        container.getChildren().add(layout);
+        container.setAlignment(Pos.CENTER);
+        return container;
     }
 }
