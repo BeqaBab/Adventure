@@ -10,7 +10,6 @@ public class Adventurer {
     private int level;
     private int exp;
     private int hp;
-    private int attack;
     private int maxHp;
     private int id;
     private int basicPotions;
@@ -36,7 +35,6 @@ public class Adventurer {
     public int getLevel() { return level; }
     public int getExp() { return exp; }
     public int getHp() { return hp; }
-    public int getAttack() { return attack; }
     public int getBasicPotions() { return basicPotions; }
     public int getMaxPotions() { return maxPotions; }
     public Weapon getCurrentWeapon() { return currentWeapon; }
@@ -46,7 +44,6 @@ public class Adventurer {
     public void setLevel(int level) { this.level = level; }
     public void setExp(int exp) { this.exp = exp; }
     public void setHp(int hp) { this.hp = hp; }
-    public void setAttack(int attack) { this.attack = attack; }
     public void setBasicPotions(int basicPotions) { this.basicPotions = basicPotions; }
     public void setMaxPotions(int maxPotions) { this.maxPotions = maxPotions; }
     public void setMaxHp(int maxHp) { this.maxHp = maxHp; }
@@ -63,7 +60,6 @@ public class Adventurer {
         Weapon bestWeapon = availableWeapons.stream()
                 .max(Comparator.comparingInt(Weapon::getDamage))
                 .orElse(currentWeapon);
-
         if (bestWeapon.getDamage() > currentWeapon.getDamage()) {
             setCurrentWeapon(bestWeapon);
         }
@@ -76,7 +72,6 @@ public class Adventurer {
                 "Level: " + level + "\n" +
                 "Exp: " + exp + "\n" +
                 "HP: " + hp + "/" + maxHp + "\n" +
-                "Attack: " + attack + "\n" +
                 "Potions: " + basicPotions + " basic, " + maxPotions + " max\n" +
                 "Weapon: " + (currentWeapon != null ? currentWeapon.toString() : "None");
     }

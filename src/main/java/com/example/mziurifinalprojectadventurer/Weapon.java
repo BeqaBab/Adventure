@@ -76,7 +76,7 @@ public class Weapon {
         Random random = new Random();
         double critChance = 0.2;
         if (random.nextDouble() < critChance) {
-            return (int)(damage * 1.5); // 50% damage increase on crit
+            return (int)(damage * 1.5);
         }
         return damage;
     }

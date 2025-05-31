@@ -40,16 +40,13 @@ public class LoginPage {
         Adventurer newAdventurer = createNewAdventurer(username, adventurerClass);
 
         try (Connection connection = DriverManager.getConnection(url, user, password)){
-            String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_level, adventurer_exp, " +
-                    "adventurer_HP, adventurer_attack, adventurer_class, adventurer_password, max_health) " +
-                    "VALUES(?, 1, 0, ?, ?, ?, ?, ?)";
+            String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_level, adventurer_exp, adventurer_HP adventurer_class, adventurer_password, max_health) VALUES(?, 1, 0, ?, ?, ?, ?)";
             try (PreparedStatement stmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, username);
                 stmt.setInt(2, newAdventurer.getMaxHp());
-                stmt.setInt(3, newAdventurer.getAttack());
-                stmt.setString(4, adventurerClass);
-                stmt.setLong(5, hash(userPassword));
-                stmt.setInt(6, newAdventurer.getMaxHp());
+                stmt.setString(3, adventurerClass);
+                stmt.setLong(4, hash(userPassword));
+                stmt.setInt(5, newAdventurer.getMaxHp());
 
                 int rowsAffected = stmt.executeUpdate();
                 if (rowsAffected > 0) {
@@ -72,7 +69,6 @@ public class LoginPage {
                                     updateStmt.executeUpdate();
                                 }
                             }
-
                             messageLabel.setText("User added successfully!");
                         }
                     }
@@ -94,19 +90,15 @@ public class LoginPage {
         switch (adventurerClass) {
             case "Warrior":
                 adventurer.setMaxHp(80);
-                adventurer.setAttack(20);
                 break;
             case "Mage":
                 adventurer.setMaxHp(100);
-                adventurer.setAttack(15);
                 break;
             case "Assassin":
                 adventurer.setMaxHp(150);
-                adventurer.setAttack(10);
                 break;
             default:
                 adventurer.setMaxHp(90);
-                adventurer.setAttack(5);
                 break;
         }
         adventurer.setHp(adventurer.getMaxHp());
@@ -156,17 +148,13 @@ public class LoginPage {
                         weapon.setUrl(url);
                         weapon.setUser(user);
                         weapon.setPassword(password);
-                        if (currentAdventurer.getWeaponId() > 0) {
-                            currentAdventurer.setCurrentWeapon(weapon.getWeaponById(currentAdventurer.getWeaponId()));
-                        } else {
-                            List<Weapon> startingWeapons = weapon.getWeaponsByLevel(1);
-                            if (!startingWeapons.isEmpty()) {
-                                currentAdventurer.setCurrentWeapon(startingWeapons.getFirst());
-                                currentAdventurer.setWeaponId(startingWeapons.getFirst().getId());
-                            }
-                        }
+                        currentAdventurer.setCurrentWeapon(weapon.getWeaponById(currentAdventurer.getWeaponId()));
+                        currentAdventurer.getCurrentWeapon().setUrl(url);
+                        currentAdventurer.getCurrentWeapon().setUser(user);
+                        currentAdventurer.getCurrentWeapon().setPassword(password);
                         Gameplay gameplay = new Gameplay(url, user, password, primaryStage, currentAdventurer);
                         gameplay.Game();
+                        currentAdventurer.checkAndUpgradeWeapon();
                     }
                 }
             } catch (SQLException e) {
@@ -183,7 +171,6 @@ public class LoginPage {
         currentAdventurer.setLevel(rs.getInt("adventurer_level"));
         currentAdventurer.setExp(rs.getInt("adventurer_exp"));
         currentAdventurer.setHp(rs.getInt("adventurer_hp"));
-        currentAdventurer.setAttack(rs.getInt("adventurer_attack"));
         currentAdventurer.setBasicPotions(rs.getInt("basic_potions"));
         currentAdventurer.setMaxPotions(rs.getInt("max_potions"));
         currentAdventurer.setAdventurerClass(rs.getString("adventurer_class"));

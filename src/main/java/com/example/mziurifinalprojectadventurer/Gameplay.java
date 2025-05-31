@@ -45,10 +45,8 @@ public class Gameplay {
             if (levelsGained > 0) {
                 currentAdventurer.setLevel(currentAdventurer.getLevel() + levelsGained);
                 int hpIncrease = levelsGained * 10;
-                int attackIncrease = levelsGained * 10;
                 currentAdventurer.setHp(currentAdventurer.getHp() + hpIncrease);
                 currentAdventurer.setMaxHp(currentAdventurer.getMaxHp() + hpIncrease);
-                currentAdventurer.setAttack(currentAdventurer.getAttack() + attackIncrease);
             }
 
             currentAdventurer.setExp(newExp);
@@ -57,21 +55,20 @@ public class Gameplay {
             currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() + currentEnemy.getDropMax());
 
             currentAdventurer.checkAndUpgradeWeapon();
-            String updateQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, adventurer_attack = ?, basic_potions = ?, max_potions = ?, max_health = ?, weapon_id = ? WHERE adventurer_id = ?";
+            adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
+            String updateQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, basic_potions = ?, max_potions = ?, max_health = ?, weapon_id = ? WHERE adventurer_id = ?";
 
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 PreparedStatement stmt = connection.prepareStatement(updateQuery)) {
-
+            try{
+                Connection connection = DriverManager.getConnection(url, user, password);
+                PreparedStatement stmt = connection.prepareStatement(updateQuery);
                 stmt.setInt(1, currentAdventurer.getLevel());
                 stmt.setInt(2, currentAdventurer.getExp());
                 stmt.setInt(3, currentAdventurer.getHp());
-                stmt.setInt(4, currentAdventurer.getAttack());
-                stmt.setInt(5, currentAdventurer.getBasicPotions());
-                stmt.setInt(6, currentAdventurer.getMaxPotions());
-                stmt.setInt(7, currentAdventurer.getMaxHp());
-                stmt.setInt(8, currentAdventurer.getWeaponId());
-                stmt.setInt(9, currentAdventurer.getId());
-
+                stmt.setInt(4, currentAdventurer.getBasicPotions());
+                stmt.setInt(5, currentAdventurer.getMaxPotions());
+                stmt.setInt(6, currentAdventurer.getMaxHp());
+                stmt.setInt(7, currentAdventurer.getWeaponId());
+                stmt.setInt(8, currentAdventurer.getId());
                 stmt.executeUpdate();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
