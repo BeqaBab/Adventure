@@ -33,32 +33,50 @@ public class Gameplay {
     }
 
     private void saveProgress(@NotNull Enemy currentEnemy) {
-        currentAdventurer.setLevel(currentAdventurer.getLevel() + currentEnemy.getDropExp() / 1000);
-        currentAdventurer.setExp(currentAdventurer.getExp() + currentEnemy.getDropExp() % 1000);
-        currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() + currentEnemy.getDropBasic());
-        currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() + currentEnemy.getDropMax());
         try {
-            currentAdventurer.checkAndUpgradeWeapon();
-            if(currentAdventurer.getExp() + currentEnemy.getDropExp() > 1000) {
-                currentAdventurer.setHp(currentAdventurer.getHp() + 10);
-                currentAdventurer.setAttack(currentAdventurer.getAttack() + 10);
+            int newExp = currentAdventurer.getExp() + currentEnemy.getDropExp();
+            int levelsGained = 0;
+
+            while (newExp >= 1000) {
+                levelsGained++;
+                newExp -= 1000;
             }
-            String insertQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, " +
-                    "adventurer_HP = ?, adventurer_attack = ?, basic_potions = ?, " +
-                    "max_potions = ?, max_health = ?, weapon_id = ? WHERE adventurer_id = ?;";
-            Connection connection = DriverManager.getConnection(url, user, password);
-            PreparedStatement stmt = connection.prepareStatement(insertQuery);
-            stmt.setInt(1, currentAdventurer.getLevel());
-            stmt.setInt(2, currentAdventurer.getExp());
-            stmt.setInt(3, currentAdventurer.getHp());
-            stmt.setInt(4, currentAdventurer.getAttack());
-            stmt.setInt(5, currentAdventurer.getBasicPotions());
-            stmt.setInt(6, currentAdventurer.getMaxPotions());
-            stmt.setInt(7, currentAdventurer.getMaxHp());
-            stmt.setInt(8, currentAdventurer.getWeaponId());
-            stmt.setInt(9, currentAdventurer.getId());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
+
+            if (levelsGained > 0) {
+                currentAdventurer.setLevel(currentAdventurer.getLevel() + levelsGained);
+                int hpIncrease = levelsGained * 10;
+                int attackIncrease = levelsGained * 10;
+                currentAdventurer.setHp(currentAdventurer.getHp() + hpIncrease);
+                currentAdventurer.setMaxHp(currentAdventurer.getMaxHp() + hpIncrease);
+                currentAdventurer.setAttack(currentAdventurer.getAttack() + attackIncrease);
+            }
+
+            currentAdventurer.setExp(newExp);
+
+            currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() + currentEnemy.getDropBasic());
+            currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() + currentEnemy.getDropMax());
+
+            currentAdventurer.checkAndUpgradeWeapon();
+            String updateQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, adventurer_attack = ?, basic_potions = ?, max_potions = ?, max_health = ?, weapon_id = ? WHERE adventurer_id = ?";
+
+            try (Connection connection = DriverManager.getConnection(url, user, password);
+                 PreparedStatement stmt = connection.prepareStatement(updateQuery)) {
+
+                stmt.setInt(1, currentAdventurer.getLevel());
+                stmt.setInt(2, currentAdventurer.getExp());
+                stmt.setInt(3, currentAdventurer.getHp());
+                stmt.setInt(4, currentAdventurer.getAttack());
+                stmt.setInt(5, currentAdventurer.getBasicPotions());
+                stmt.setInt(6, currentAdventurer.getMaxPotions());
+                stmt.setInt(7, currentAdventurer.getMaxHp());
+                stmt.setInt(8, currentAdventurer.getWeaponId());
+                stmt.setInt(9, currentAdventurer.getId());
+
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -67,19 +85,28 @@ public class Gameplay {
     private Enemy chooseEnemy() throws SQLException {
         int randomId = random.nextInt(1, 10);
         Enemy currentEnemy = new Enemy();
-        String insertQuery = "SELECT * FROM monsters WHERE monster_id = ?;";
-        Connection connection = DriverManager.getConnection(url, user, password);
-        PreparedStatement stmt = connection.prepareStatement(insertQuery);
-        stmt.setInt(1, randomId);
-        ResultSet rs = stmt.executeQuery();
-        while(rs.next()){
-            currentEnemy.setName(rs.getString("monster_name"));
-            currentEnemy.setDamage(rs.getInt("monster_damage"));
-            currentEnemy.setHp(rs.getInt("monster_hp"));
-            currentEnemy.setDropBasic(rs.getInt("monster_drop_basic"));
-            currentEnemy.setDropMax(rs.getInt("monster_drop_max"));
-            currentEnemy.setDropExp(rs.getInt("monster_drop_exp"));
+
+        try {
+            Connection connection = DriverManager.getConnection(url, user, password);
+            String insertQuery = "SELECT * FROM monsters WHERE monster_id = ?;";
+            PreparedStatement stmt = connection.prepareStatement(insertQuery);
+            stmt.setInt(1, randomId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                currentEnemy = new Enemy();
+                currentEnemy.setName(rs.getString("monster_name"));
+                currentEnemy.setDamage(rs.getInt("monster_damage"));
+                currentEnemy.setHp(rs.getInt("monster_hp"));
+                currentEnemy.setDropBasic(rs.getInt("monster_drop_basic"));
+                currentEnemy.setDropMax(rs.getInt("monster_drop_max"));
+                currentEnemy.setDropExp(rs.getInt("monster_drop_exp"));
+            } else {
+                throw new SQLException("No monster found with ID: " + randomId);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+
         return currentEnemy;
     }
 
@@ -195,8 +222,10 @@ public class Gameplay {
             handleVictory(currentEnemy, centerContainer);
         }
 
+        int dealtDamage = weapon.calculateDamage();
+
         currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
-        damageLabel.setText("⚔ " + weapon.getName() + " dealt: " + (weapon.calculateDamage() > weapon.getDamage() ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
+        damageLabel.setText("⚔ " + weapon.getName() + " dealt: " + dealtDamage + (dealtDamage > weapon.getDamage() ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
         adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + weapon.getName());
     }
 
@@ -226,17 +255,21 @@ public class Gameplay {
         winLabel.setText("Victory! You defeated " + currentEnemy[0].getName() + "\n Your progress has been saved!");
         winLabel.setId("winLabel");
         saveProgress(currentEnemy[0]);
-        adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
 
-//        try {
-//            currentEnemy[0] = chooseEnemy();
-//        } catch (SQLException ex) {
-//            throw new RuntimeException(ex);
-//        }
+        try {
+            currentEnemy[0] = chooseEnemy();
+            adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
+            currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
+            damageLabel.setText("Combat will begin when you attack!");
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
 
         Button continueButton = new Button("Continue Adventure →");
         continueButton.setId("continueButton");
-        continueButton.setOnAction(actionEvent -> primaryStage.getScene().setRoot(centerContainer));
+        continueButton.setOnAction(actionEvent -> {
+            primaryStage.getScene().setRoot(centerContainer);
+        });
 
         VBox winLayout = new VBox(15);
         winLayout.getStyleClass().add("combat-container");

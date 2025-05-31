@@ -59,14 +59,6 @@ public class Adventurer {
     }
 
     public void checkAndUpgradeWeapon() throws SQLException {
-        if (currentWeapon == null) {
-            List<Weapon> startingWeapons = currentWeapon.getWeaponsByLevel(1);
-            if (!startingWeapons.isEmpty()) {
-                setCurrentWeapon(startingWeapons.get(0));
-            }
-            return;
-        }
-
         List<Weapon> availableWeapons = currentWeapon.getWeaponsByLevel(this.level);
         Weapon bestWeapon = availableWeapons.stream()
                 .max(Comparator.comparingInt(Weapon::getDamage))
