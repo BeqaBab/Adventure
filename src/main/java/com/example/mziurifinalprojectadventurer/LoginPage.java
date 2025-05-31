@@ -4,19 +4,19 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.*;
+import java.util.List;
 import java.util.Objects;
 
 public class LoginPage {
-    String url, user, password;
-    private Stage primaryStage;
+    private final String url;
+    private final String user;
+    private final String password;
+    private final Stage primaryStage;
     private VBox currentRoot;
     private Adventurer currentAdventurer = new Adventurer();
 
@@ -27,114 +27,171 @@ public class LoginPage {
         this.primaryStage = primaryStage;
     }
 
-    private void register(TextField registrationNameField, TextField registrationPasswordField, Label registrationMessageLabel, ChoiceBox<String> registrationClassChoiceBox) {
-        Adventurer newAdventurer = new Adventurer();
-        String username = registrationNameField.getText();
-        String userPassword = registrationPasswordField.getText();
-        String adventurerClass;
-        if(registrationClassChoiceBox.getValue() == null){
-            registrationMessageLabel.setText("Please choose a class");
-        }else{
-            adventurerClass = registrationClassChoiceBox.getValue();
-            newAdventurer.setName(username);
-            try {
-                Connection connection = DriverManager.getConnection(url, user, password);
-                switch (adventurerClass) {
-                    case "Warrior":
-                        newAdventurer.setMaxHp(80);
-                        newAdventurer.setAttack(20);
-                        newAdventurer.setAdventurerClass("Warrior");
-                        break;
-                    case "Mage":
-                        newAdventurer.setMaxHp(100);
-                        newAdventurer.setAttack(15);
-                        newAdventurer.setAdventurerClass("Mage");
-                        break;
-                    case "Assassin":
-                        newAdventurer.setMaxHp(150);
-                        newAdventurer.setAttack(10);
-                        newAdventurer.setAdventurerClass("Assassin");
-                        break;
-                    default:
-                        newAdventurer.setMaxHp(90);
-                        newAdventurer.setAttack(5);
-                        newAdventurer.setAdventurerClass("Basic");
-                        break;
-                }
-                String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_level, adventurer_exp, adventurer_HP, adventurer_attack, basic_potions, max_potions, adventurer_class, adventurer_password, max_health) VALUES(?, 1, 0, ?, ?, 10, 5, ?, ?, ?);";
-                PreparedStatement stmt = connection.prepareStatement(insertQuery);
-                stmt.setString(1, newAdventurer.getName());
+    private void register(@NotNull TextField nameField, @NotNull TextField passwordField, Label messageLabel, @NotNull ChoiceBox<String> classChoiceBox){
+        String username = nameField.getText();
+        String userPassword = passwordField.getText();
+        String adventurerClass = classChoiceBox.getValue();
+
+        if (adventurerClass == null) {
+            messageLabel.setText("Please choose a class");
+            return;
+        }
+
+        Adventurer newAdventurer = createNewAdventurer(username, adventurerClass);
+
+        try (Connection connection = DriverManager.getConnection(url, user, password)){
+            String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_level, adventurer_exp, " +
+                    "adventurer_HP, adventurer_attack, adventurer_class, adventurer_password, max_health) " +
+                    "VALUES(?, 1, 0, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, username);
                 stmt.setInt(2, newAdventurer.getMaxHp());
                 stmt.setInt(3, newAdventurer.getAttack());
-                stmt.setString(4, newAdventurer.getAdventurerClass());
+                stmt.setString(4, adventurerClass);
                 stmt.setLong(5, hash(userPassword));
                 stmt.setInt(6, newAdventurer.getMaxHp());
+
                 int rowsAffected = stmt.executeUpdate();
                 if (rowsAffected > 0) {
-                    registrationMessageLabel.setText("User added successfully!");
-                } else registrationMessageLabel.setText("User couldn't be added.");
-            } catch (SQLException ex) {
-                registrationMessageLabel.setText("User couldn't be added, please choose a different name or try again later");
-            }
-            registrationPasswordField.clear();
-        }
-    }
+                    try (ResultSet rs = stmt.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            int id = rs.getInt(1);
+                            newAdventurer.setId(id);
 
-    private void login(@NotNull TextField loginNameField, @NotNull TextField loginPasswordField, @NotNull ChoiceBox<String> loginClassChoiceBox, Label loginMessageLabel) throws SQLException {
-        String username = loginNameField.getText();
-        String userPassword = loginPasswordField.getText();
-        String adventurerClass = loginClassChoiceBox.getValue();
+                            Weapon weapon = new Weapon();
+                            weapon.setUrl(url);
+                            weapon.setUser(user);
+                            weapon.setPassword(password);
 
-        try {
-            Connection connection = DriverManager.getConnection(url, user, password);
-            String checkAccountQuery = "SELECT adventurer_password FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?;";
-            PreparedStatement stmt = connection.prepareStatement(checkAccountQuery);
-            stmt.setString(1, username);
-            stmt.setString(2, adventurerClass);
-            ResultSet rs = stmt.executeQuery();
+                            List<Weapon> startingWeapons = weapon.getWeaponsByLevel(1);
+                            if (!startingWeapons.isEmpty()) {
+                                String updateQuery = "UPDATE adventurer SET weapon_id = ? WHERE adventurer_id = ?";
+                                try (PreparedStatement updateStmt = connection.prepareStatement(updateQuery)) {
+                                    updateStmt.setInt(1, startingWeapons.getFirst().getId());
+                                    updateStmt.setInt(2, id);
+                                    updateStmt.executeUpdate();
+                                }
+                            }
 
-            if (!rs.next()) {
-                loginMessageLabel.setText("This account doesn't exist");
-                loginPasswordField.clear();
-                return;
-            }
-            long storedPassword = rs.getLong("adventurer_password");
-            if (userPassword.isBlank() || storedPassword == 0) {
-                loginMessageLabel.setText("Please input the password.");
-                loginPasswordField.clear();
-                return;
-            }
-            if (storedPassword != hash(userPassword)) {
-                loginMessageLabel.setText("Wrong password.");
-                loginPasswordField.clear();
-                return;
-            }
-            String selectQuery = "SELECT * FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?;";
-            stmt = connection.prepareStatement(selectQuery);
-            stmt.setString(1, username);
-            stmt.setString(2, adventurerClass);
-            rs = stmt.executeQuery();
-            if (rs.next()) {
-                currentAdventurer.setId(rs.getInt("adventurer_id"));
-                currentAdventurer.setName(username);
-                currentAdventurer.setLevel(rs.getInt("adventurer_level"));
-                currentAdventurer.setExp(rs.getInt("adventurer_exp"));
-                currentAdventurer.setHp(rs.getInt("adventurer_hp"));
-                currentAdventurer.setAttack(rs.getInt("adventurer_attack"));
-                currentAdventurer.setBasicPotions(rs.getInt("basic_potions"));
-                currentAdventurer.setMaxPotions(rs.getInt("max_potions"));
-                currentAdventurer.setAdventurerClass(rs.getString("adventurer_class"));
-                currentAdventurer.setMaxHp(rs.getInt("max_health"));
-                loginPasswordField.clear();
+                            messageLabel.setText("User added successfully!");
+                        }
+                    }
+                } else {
+                    messageLabel.setText("User couldn't be added.");
+                }
             }
         } catch (SQLException ex) {
-            throw new RuntimeException(ex);
+            messageLabel.setText("User couldn't be added. Please try a different name.");
         }
-        Gameplay gameplay = new Gameplay(primaryStage, currentAdventurer, url, user, password);
-        gameplay.Game();
+        passwordField.clear();
     }
 
-    public static long hash(@NotNull String s) {
+    private Adventurer createNewAdventurer(String username, String adventurerClass){
+        Adventurer adventurer = new Adventurer();
+        adventurer.setName(username);
+        adventurer.setAdventurerClass(adventurerClass);
+
+        switch (adventurerClass) {
+            case "Warrior":
+                adventurer.setMaxHp(80);
+                adventurer.setAttack(20);
+                break;
+            case "Mage":
+                adventurer.setMaxHp(100);
+                adventurer.setAttack(15);
+                break;
+            case "Assassin":
+                adventurer.setMaxHp(150);
+                adventurer.setAttack(10);
+                break;
+            default:
+                adventurer.setMaxHp(90);
+                adventurer.setAttack(5);
+                break;
+        }
+        adventurer.setHp(adventurer.getMaxHp());
+        return adventurer;
+    }
+
+    private void login(@NotNull TextField nameField, @NotNull TextField passwordField, @NotNull ChoiceBox<String> classChoiceBox, Label messageLabel) throws SQLException {
+        String username = nameField.getText();
+        String userPassword = passwordField.getText();
+        String adventurerClass = classChoiceBox.getValue();
+        Connection connection = DriverManager.getConnection(url, user, password);
+        try {
+            String checkQuery = "SELECT adventurer_password FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?";
+            try (PreparedStatement stmt = connection.prepareStatement(checkQuery)) {
+                stmt.setString(1, username);
+                stmt.setString(2, adventurerClass);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (!rs.next()) {
+                        messageLabel.setText("Account doesn't exist");
+                        passwordField.clear();
+                        return;
+                    }
+
+                    long storedPassword = rs.getLong("adventurer_password");
+                    if (userPassword.isBlank() || storedPassword == 0) {
+                        messageLabel.setText("Please enter password");
+                        passwordField.clear();
+                        return;
+                    }
+                    if (storedPassword != hash(userPassword)) {
+                        messageLabel.setText("Wrong password");
+                        passwordField.clear();
+                        return;
+                    }
+                }
+            }
+
+            String selectQuery = "SELECT * FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?";
+            PreparedStatement stmt = connection.prepareStatement(selectQuery);
+            try {
+                stmt.setString(1, username);
+                stmt.setString(2, adventurerClass);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        loadAdventurerData(rs);
+                        Weapon weapon = new Weapon();
+                        weapon.setUrl(url);
+                        weapon.setUser(user);
+                        weapon.setPassword(password);
+                        if (currentAdventurer.getWeaponId() > 0) {
+                            currentAdventurer.setCurrentWeapon(weapon.getWeaponById(currentAdventurer.getWeaponId()));
+                        } else {
+                            List<Weapon> startingWeapons = weapon.getWeaponsByLevel(1);
+                            if (!startingWeapons.isEmpty()) {
+                                currentAdventurer.setCurrentWeapon(startingWeapons.getFirst());
+                                currentAdventurer.setWeaponId(startingWeapons.getFirst().getId());
+                            }
+                        }
+                        Gameplay gameplay = new Gameplay(url, user, password, primaryStage, currentAdventurer);
+                        gameplay.Game();
+                    }
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void loadAdventurerData(ResultSet rs) throws SQLException {
+        currentAdventurer.setId(rs.getInt("adventurer_id"));
+        currentAdventurer.setName(rs.getString("adventurer_name"));
+        currentAdventurer.setLevel(rs.getInt("adventurer_level"));
+        currentAdventurer.setExp(rs.getInt("adventurer_exp"));
+        currentAdventurer.setHp(rs.getInt("adventurer_hp"));
+        currentAdventurer.setAttack(rs.getInt("adventurer_attack"));
+        currentAdventurer.setBasicPotions(rs.getInt("basic_potions"));
+        currentAdventurer.setMaxPotions(rs.getInt("max_potions"));
+        currentAdventurer.setAdventurerClass(rs.getString("adventurer_class"));
+        currentAdventurer.setMaxHp(rs.getInt("max_health"));
+        currentAdventurer.setWeaponId(rs.getInt("weapon_id"));
+    }
+
+    public static long hash(@NotNull String s){
         final int p = 31;
         final int m = 100000009;
         long hashValue = 0;
@@ -146,8 +203,7 @@ public class LoginPage {
         return hashValue;
     }
 
-
-    void authorisation() {
+    void authorisation(){
         Label loginUserLabel = new Label("Name:");
         Label loginClassLabel = new Label("Class:");
         Label loginPasswordLabel = new Label("Password:");
@@ -169,16 +225,20 @@ public class LoginPage {
         PasswordField registrationPasswordField = new PasswordField();
 
         Button registerButton = new Button("Register");
-        registerButton.setOnAction(e -> register(registrationNameField, registrationPasswordField, registrationMessageLabel, registrationClassChoiceBox));
+        registerButton.setOnAction(e -> handleRegisterAction(
+                registrationNameField,
+                registrationPasswordField,
+                registrationMessageLabel,
+                registrationClassChoiceBox
+        ));
 
         Button loginButton = new Button("Login");
-        loginButton.setOnAction(e -> {
-            try {
-                login(loginNameField, loginPasswordField, loginClassChoiceBox, loginMessageLabel);
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-        });
+        loginButton.setOnAction(e -> handleLoginAction(
+                loginNameField,
+                loginPasswordField,
+                loginClassChoiceBox,
+                loginMessageLabel
+        ));
 
         Label registrationSuggestionLabel = new Label("Don't have an account?");
         Button switchToRegisterButton = new Button("Register here");
@@ -208,26 +268,53 @@ public class LoginPage {
         );
         registerRoot.setPadding(new Insets(20, 20, 20, 20));
 
-        switchToRegisterButton.setOnAction(e -> {
-            primaryStage.getScene().setRoot(registerRoot);
-            loginMessageLabel.setText("");
-            currentRoot = registerRoot;
-            registrationClassChoiceBox.setValue(null);
-            registrationPasswordField.clear();
-            registrationNameField.clear();
-        });
+        switchToRegisterButton.setOnAction(e -> handleSwitchToRegister(
+                registerRoot,
+                loginMessageLabel,
+                registrationClassChoiceBox,
+                registrationPasswordField,
+                registrationNameField
+        ));
 
-        switchToLoginButton.setOnAction(e -> {
-            primaryStage.getScene().setRoot(loginRoot);
-            currentRoot = loginRoot;
-            loginClassChoiceBox.setValue(null);
-            loginNameField.clear();
-            loginPasswordField.clear();
-        });
+        switchToLoginButton.setOnAction(e -> handleSwitchToLogin(
+                loginRoot,
+                loginClassChoiceBox,
+                loginNameField,
+                loginPasswordField
+        ));
 
         currentRoot = loginRoot;
         Scene mainScene = new Scene(currentRoot, 700, 600);
         mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Adventure_login.css")).toExternalForm());
         primaryStage.setScene(mainScene);
+    }
+
+    private void handleRegisterAction(TextField nameField, TextField passwordField, Label messageLabel, ChoiceBox<String> classChoiceBox){
+        register(nameField, passwordField, messageLabel, classChoiceBox);
+    }
+
+    private void handleLoginAction(TextField nameField, TextField passwordField, ChoiceBox<String> classChoiceBox, Label messageLabel){
+        try {
+            login(nameField, passwordField, classChoiceBox, messageLabel);
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void handleSwitchToRegister(VBox registerRoot, Label loginMessageLabel, ChoiceBox<String> classChoiceBox, PasswordField passwordField, TextField nameField){
+        primaryStage.getScene().setRoot(registerRoot);
+        loginMessageLabel.setText("");
+        currentRoot = registerRoot;
+        classChoiceBox.setValue(null);
+        passwordField.clear();
+        nameField.clear();
+    }
+
+    private void handleSwitchToLogin(VBox loginRoot, ChoiceBox<String> classChoiceBox, TextField nameField, PasswordField passwordField){
+        primaryStage.getScene().setRoot(loginRoot);
+        currentRoot = loginRoot;
+        classChoiceBox.setValue(null);
+        nameField.clear();
+        passwordField.clear();
     }
 }

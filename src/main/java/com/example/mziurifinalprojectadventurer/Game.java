@@ -5,12 +5,14 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -28,7 +30,7 @@ public class Game extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws IOException{
         String url = "jdbc:postgresql://localhost:5432/Adventure";
         String user = "postgres";
         String password = Initiate();
@@ -54,6 +56,13 @@ public class Game extends Application {
 
         Scene scene = new Scene(layout, 700, 600);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Welcome_screen_dark.css")).toExternalForm());
+
+        try {
+            Image icon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/GameIcon.png")));
+            primaryStage.getIcons().add(icon);
+        } catch (Exception e) {
+            System.out.println("Could not load icon: " + e.getMessage());
+        }
 
         primaryStage.setTitle("Welcome!");
         primaryStage.setScene(scene);
