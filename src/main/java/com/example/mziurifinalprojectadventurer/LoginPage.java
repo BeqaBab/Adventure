@@ -76,10 +76,12 @@ public class LoginPage {
         String userPassword = loginPasswordField.getText();
         String adventurerClass = loginClassChoiceBox.getValue();
         currentAdventurer = baseConnection.loginToExistingAccount(username, adventurerClass, hash(userPassword), loginMessageLabel, userPassword, loginPasswordField);
-        currentAdventurer.setCurrentWeapon(baseConnection.getWeaponById(currentAdventurer.getWeaponId()));
-        Gameplay gameplay = new Gameplay(baseConnection, primaryStage, currentAdventurer);
-        gameplay.Game();
-        currentAdventurer.checkAndUpgradeWeapon(baseConnection);
+        if(currentAdventurer != null)   {
+            currentAdventurer.setCurrentWeapon(baseConnection.getWeaponById(currentAdventurer.getWeaponId()));
+            Gameplay gameplay = new Gameplay(baseConnection, primaryStage, currentAdventurer);
+            gameplay.Game();
+            currentAdventurer.checkAndUpgradeWeapon(baseConnection);
+        }
     }
 
     public static long hash(@NotNull String s){
