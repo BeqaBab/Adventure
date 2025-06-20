@@ -182,7 +182,7 @@ public class BaseConnection {
     }
 
     public void saveProgressToDataBase(Adventurer currentAdventurer){
-        String updateQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, basic_potions = ?, max_potions = ?, max_health = ?, weapon_id = ? WHERE adventurer_id = ?";
+        String updateQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, basic_potions = ?, max_potions = ?, max_health = ?, weapon_id = ?, defeated_monsters = ? WHERE adventurer_id = ?";
         try{
             PreparedStatement stmt = getConnection().prepareStatement(updateQuery);
             stmt.setInt(1, currentAdventurer.getLevel());
@@ -193,6 +193,7 @@ public class BaseConnection {
             stmt.setInt(6, currentAdventurer.getMaxHp());
             stmt.setInt(7, currentAdventurer.getWeaponId());
             stmt.setInt(8, currentAdventurer.getId());
+            stmt.setInt(9, currentAdventurer.getDefeatedMonsters());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);

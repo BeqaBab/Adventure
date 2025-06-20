@@ -237,6 +237,7 @@ public class Gameplay {
     private void handleVictory(@NotNull Enemy[] currentEnemy, StackPane centerContainer) {
         winLabel.setText("Victory! You defeated " + currentEnemy[0].getName() + "\n Your progress has been saved!");
         winLabel.setId("winLabel");
+        currentAdventurer.setDefeatedMonsters(currentAdventurer.getDefeatedMonsters() + 1);
         saveProgress(currentEnemy[0]);
 
         currentEnemy[0] = baseConnection.chooseEnemy();

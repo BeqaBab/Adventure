@@ -15,6 +15,7 @@ public class Adventurer {
     private int basicPotions;
     private int maxPotions;
     private int weaponId;
+    private int defeatedMonsters;
     private Weapon currentWeapon;
 
     public Adventurer() {
@@ -22,6 +23,7 @@ public class Adventurer {
         this.exp = 0;
         this.basicPotions = 10;
         this.maxPotions = 5;
+        this.defeatedMonsters = 0;
         this.currentWeapon = new Weapon();
     }
 
@@ -36,6 +38,9 @@ public class Adventurer {
     public int getBasicPotions() { return basicPotions; }
     public int getMaxPotions() { return maxPotions; }
     public Weapon getCurrentWeapon() { return currentWeapon; }
+    public int getDefeatedMonsters() {
+        return defeatedMonsters;
+    }
 
     public void setName(String name) { this.name = name; }
     public void setAdventurerClass(String adventurerClass) { this.adventurerClass = adventurerClass; }
@@ -45,6 +50,9 @@ public class Adventurer {
     public void setBasicPotions(int basicPotions) { this.basicPotions = basicPotions; }
     public void setMaxPotions(int maxPotions) { this.maxPotions = maxPotions; }
     public void setMaxHp(int maxHp) { this.maxHp = maxHp; }
+    public void setDefeatedMonsters(int defeatedMonsters) {
+        this.defeatedMonsters = defeatedMonsters;
+    }
 
     public void setCurrentWeapon(Weapon weapon) {
         this.currentWeapon = weapon;
@@ -70,6 +78,7 @@ public class Adventurer {
                 "Level: " + level + "\n" +
                 "Exp: " + exp + "\n" +
                 "Potions: " + basicPotions + " basic, " + maxPotions + " max\n" +
-                "Weapon: " + (currentWeapon != null ? currentWeapon.toString() : "None");
+                "Weapon: " + (currentWeapon != null ? currentWeapon.toString() : "None") + "\n" +
+                "Defeated Monsters: " + defeatedMonsters;
     }
 }
