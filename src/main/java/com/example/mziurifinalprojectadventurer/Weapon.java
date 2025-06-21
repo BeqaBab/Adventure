@@ -1,7 +1,5 @@
 package com.example.mziurifinalprojectadventurer;
 
-import java.util.Random;
-
 public class Weapon {
     private int id;
     private String name;
@@ -16,15 +14,6 @@ public class Weapon {
     public void setName(String name) { this.name = name; }
     public void setDamage(int damage) { this.damage = damage; }
     public void setLevelRequirement(int levelRequirement) { this.levelRequirement = levelRequirement; }
-
-    public int calculateDamage() {
-        Random random = new Random();
-        double critChance = 0.2;
-        if (random.nextDouble() < critChance) {
-            return (int)(damage * 1.5);
-        }
-        return damage;
-    }
 
     @Override
     public String toString() {

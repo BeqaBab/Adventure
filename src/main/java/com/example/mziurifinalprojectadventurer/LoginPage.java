@@ -15,7 +15,6 @@ public class LoginPage {
     private final Stage primaryStage;
     private final BaseConnection baseConnection;
     private VBox currentRoot;
-    private Adventurer currentAdventurer = new Adventurer();
 
     private TextField loginNameField;
     private PasswordField loginPasswordField;
@@ -55,16 +54,24 @@ public class LoginPage {
 
         switch (adventurerClass) {
             case "Warrior":
-                adventurer.setMaxHp(80);
+                adventurer.setMaxHp(150);
+                adventurer.setBasicPotions(10);
+                adventurer.setMaxPotions(5);
+                adventurer.setCritChance(0.4);
                 break;
             case "Mage":
                 adventurer.setMaxHp(100);
+                adventurer.setBasicPotions(15);
+                adventurer.setMaxPotions(10);
+                adventurer.setCritChance(0.4);
                 break;
             case "Assassin":
-                adventurer.setMaxHp(150);
+                adventurer.setMaxHp(100);
+                adventurer.setBasicPotions(10);
+                adventurer.setMaxPotions(5);
+                adventurer.setCritChance(0.7);
                 break;
             default:
-                adventurer.setMaxHp(90);
                 break;
         }
         adventurer.setHp(adventurer.getMaxHp());
@@ -75,7 +82,7 @@ public class LoginPage {
         String username = loginNameField.getText();
         String userPassword = loginPasswordField.getText();
         String adventurerClass = loginClassChoiceBox.getValue();
-        currentAdventurer = baseConnection.loginToExistingAccount(username, adventurerClass, hash(userPassword), loginMessageLabel, userPassword, loginPasswordField);
+        Adventurer currentAdventurer = baseConnection.loginToExistingAccount(username, adventurerClass, hash(userPassword), loginMessageLabel, userPassword, loginPasswordField);
         if(currentAdventurer != null)   {
             currentAdventurer.setCurrentWeapon(baseConnection.getWeaponById(currentAdventurer.getWeaponId()));
             Gameplay gameplay = new Gameplay(baseConnection, primaryStage, currentAdventurer);

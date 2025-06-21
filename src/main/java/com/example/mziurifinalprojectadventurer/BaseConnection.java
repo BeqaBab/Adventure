@@ -10,32 +10,27 @@ import java.util.List;
 import java.util.Random;
 
 public class BaseConnection {
-    private final String url;
-    private final String user;
-    private final String password;
+    private Connection connection;
 
-    public BaseConnection(String url, String user,String password) {
-        this.password = password;
-        this.user = user;
-        this.url = url;
-    }
-
-    public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url, user, password);
+    public BaseConnection(String url, String user,String password) throws SQLException {
+        connection = DriverManager.getConnection(url, user, password);
     }
 
     public void newAccount(String username, String adventurerClass, Adventurer newAdventurer, long password, Label registrationMessageLabel) {
-        try (Connection conn = getConnection()) {
-            String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_level, adventurer_exp, adventurer_HP, adventurer_class, adventurer_password, max_health) VALUES(?, 1, 0, ?, ?, ?, ?)";
-            try (PreparedStatement stmt = conn.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
+        try{
+            String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_HP, adventurer_class, adventurer_password, max_health, basic_potions, max_potions, crit_chance) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, username);
                 stmt.setInt(2, newAdventurer.getMaxHp());
                 stmt.setString(3, adventurerClass);
                 stmt.setLong(4, password);
                 stmt.setInt(5, newAdventurer.getMaxHp());
+                stmt.setInt(6, newAdventurer.getBasicPotions());
+                stmt.setInt(7, newAdventurer.getMaxPotions());
+                stmt.setInt(8, (int) newAdventurer.getCritChance());
 
                 if (stmt.executeUpdate() > 0) {
-                    handleSuccessfulRegistration(conn, stmt, newAdventurer, registrationMessageLabel);
+                    handleSuccessfulRegistration(connection, stmt, newAdventurer, registrationMessageLabel);
                 } else {
                     registrationMessageLabel.setText("User couldn't be added.");
                 }
@@ -45,22 +40,22 @@ public class BaseConnection {
         }
     }
 
-    private void handleSuccessfulRegistration(Connection conn, PreparedStatement stmt, Adventurer newAdventurer, Label registrationMessageLabel) throws SQLException {
+    private void handleSuccessfulRegistration(Connection connection, PreparedStatement stmt, Adventurer newAdventurer, Label registrationMessageLabel) throws SQLException {
         try (ResultSet rs = stmt.getGeneratedKeys()) {
             if (rs.next()) {
                 int id = rs.getInt(1);
                 newAdventurer.setId(id);
-                assignStartingWeapon(conn, id);
+                assignStartingWeapon(connection, id);
                 registrationMessageLabel.setText("User added successfully!");
             }
         }
     }
 
-    private void assignStartingWeapon(Connection conn, int adventurerId) throws SQLException {
+    private void assignStartingWeapon(Connection connection, int adventurerId) throws SQLException {
         List<Weapon> startingWeapons = getWeaponsByLevel(1);
         if (!startingWeapons.isEmpty()) {
             String updateQuery = "UPDATE adventurer SET weapon_id = ? WHERE adventurer_id = ?";
-            try (PreparedStatement updateStmt = conn.prepareStatement(updateQuery)) {
+            try (PreparedStatement updateStmt = connection.prepareStatement(updateQuery)) {
                 updateStmt.setInt(1, startingWeapons.getFirst().getId());
                 updateStmt.setInt(2, adventurerId);
                 updateStmt.executeUpdate();
@@ -81,8 +76,7 @@ public class BaseConnection {
 
     private boolean validateLoginCredentials(String username, String adventurerClass, long password, Label loginMessageLabel, String userPassword, TextField loginPasswordField) throws SQLException {
         String checkQuery = "SELECT adventurer_password FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(checkQuery)) {
+        try (PreparedStatement stmt = connection.prepareStatement(checkQuery)) {
             stmt.setString(1, username);
             stmt.setString(2, adventurerClass);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -113,8 +107,7 @@ public class BaseConnection {
 
     private Adventurer loadAdventurer(String username, String adventurerClass) throws SQLException {
         String selectQuery = "SELECT * FROM adventurer WHERE adventurer_name = ? AND adventurer_class = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(selectQuery)) {
+        try (PreparedStatement stmt = connection.prepareStatement(selectQuery)) {
             stmt.setString(1, username);
             stmt.setString(2, adventurerClass);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -135,13 +128,14 @@ public class BaseConnection {
         currentAdventurer.setAdventurerClass(rs.getString("adventurer_class"));
         currentAdventurer.setMaxHp(rs.getInt("max_health"));
         currentAdventurer.setWeaponId(rs.getInt("weapon_id"));
+        currentAdventurer.setDefeatedMonsters(rs.getInt("defeated_monsters"));
+        currentAdventurer.setCritChance(rs.getDouble("crit_chance"));
         return currentAdventurer;
     }
 
     public Weapon getWeaponById(int weaponId) throws SQLException {
         String query = "SELECT * FROM weapons WHERE weapon_id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, weaponId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -160,8 +154,7 @@ public class BaseConnection {
     public List<Weapon> getWeaponsByLevel(int level) throws SQLException {
         String query = "SELECT * FROM weapons WHERE weapon_level_requirement <= ? ORDER BY weapon_damage";
         List<Weapon> weapons = new ArrayList<>();
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, level);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -184,7 +177,7 @@ public class BaseConnection {
     public void saveProgressToDataBase(Adventurer currentAdventurer){
         String updateQuery = "UPDATE adventurer SET adventurer_level = ?, adventurer_exp = ?, adventurer_HP = ?, basic_potions = ?, max_potions = ?, max_health = ?, weapon_id = ?, defeated_monsters = ? WHERE adventurer_id = ?";
         try{
-            PreparedStatement stmt = getConnection().prepareStatement(updateQuery);
+            PreparedStatement stmt = connection.prepareStatement(updateQuery);
             stmt.setInt(1, currentAdventurer.getLevel());
             stmt.setInt(2, currentAdventurer.getExp());
             stmt.setInt(3, currentAdventurer.getHp());
@@ -192,8 +185,8 @@ public class BaseConnection {
             stmt.setInt(5, currentAdventurer.getMaxPotions());
             stmt.setInt(6, currentAdventurer.getMaxHp());
             stmt.setInt(7, currentAdventurer.getWeaponId());
-            stmt.setInt(8, currentAdventurer.getId());
-            stmt.setInt(9, currentAdventurer.getDefeatedMonsters());
+            stmt.setInt(8, currentAdventurer.getDefeatedMonsters());
+            stmt.setInt(9, currentAdventurer.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -207,7 +200,7 @@ public class BaseConnection {
         Enemy currentEnemy;
         try {
             String insertQuery = "SELECT * FROM monsters WHERE monster_id = ?;";
-            PreparedStatement stmt = getConnection().prepareStatement(insertQuery);
+            PreparedStatement stmt = connection.prepareStatement(insertQuery);
             stmt.setInt(1, randomId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -230,7 +223,7 @@ public class BaseConnection {
     public void deleteProgress(Adventurer currentAdventurer){
         try{
             String insertQuery = "DELETE FROM adventurer WHERE adventurer_id = ?;";
-            PreparedStatement stmt = getConnection().prepareStatement(insertQuery);
+            PreparedStatement stmt = connection.prepareStatement(insertQuery);
             stmt.setInt(1, currentAdventurer.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {

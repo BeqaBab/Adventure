@@ -37,7 +37,7 @@ public class Gameplay {
     private Button runButton = new Button("🏃 Flee");
     private final BaseConnection baseConnection;
 
-    public Gameplay(BaseConnection baseConnection, Stage primaryStage, Adventurer currentAdventurer) throws SQLException {
+    public Gameplay(BaseConnection baseConnection, Stage primaryStage, Adventurer currentAdventurer){
         this.baseConnection = baseConnection;
         this.primaryStage = primaryStage;
         this.currentAdventurer = currentAdventurer;
@@ -98,7 +98,7 @@ public class Gameplay {
         }
     }
 
-    public void Game() throws SQLException {
+    public void Game(){
         final Enemy[] currentEnemy = {baseConnection.chooseEnemy()};
         setUpLabels(currentEnemy[0]);
         setUpButtons();
@@ -109,7 +109,7 @@ public class Gameplay {
     }
 
     private Scene createMainScene(Enemy[] currentEnemy) {
-        StackPane centerContainer = createMainContainer(currentEnemy);
+        StackPane centerContainer = createMainContainer();
         setupButtonActions(currentEnemy, centerContainer);
 
         Scene mainScene = new Scene(centerContainer, 700, 600);
@@ -117,7 +117,7 @@ public class Gameplay {
         return mainScene;
     }
 
-    private StackPane createMainContainer(Enemy[] currentEnemy) {
+    private StackPane createMainContainer() {
         VBox statusPanel = createStatusPanel();
         VBox actionPanel = createActionPanel();
 
@@ -195,7 +195,7 @@ public class Gameplay {
 
     private void handleAttackButtonAction(@NotNull Enemy[] currentEnemy, StackPane centerContainer) {
         Weapon weapon = currentAdventurer.getCurrentWeapon();
-        int damage = weapon.calculateDamage();
+        int damage = currentAdventurer.calculateDamage();
         currentEnemy[0].setHp(currentEnemy[0].getHp() - damage);
         currentAdventurer.setHp(currentAdventurer.getHp() - currentEnemy[0].getDamage());
 
@@ -205,10 +205,8 @@ public class Gameplay {
             handleVictory(currentEnemy, centerContainer);
         }
 
-        int dealtDamage = weapon.calculateDamage();
-
         currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
-        damageLabel.setText("⚔ " + weapon.getName() + " dealt: " + dealtDamage + (dealtDamage > weapon.getDamage() ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
+        damageLabel.setText("⚔ " + weapon.getName() + " dealt: " + damage + (damage > weapon.getDamage() ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
         adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + weapon.getName());
     }
 
@@ -247,9 +245,7 @@ public class Gameplay {
 
         Button continueButton = new Button("Continue Adventure →");
         continueButton.setId("continueButton");
-        continueButton.setOnAction(actionEvent -> {
-            primaryStage.getScene().setRoot(centerContainer);
-        });
+        continueButton.setOnAction(actionEvent -> primaryStage.getScene().setRoot(centerContainer));
 
         VBox winLayout = new VBox(15);
         winLayout.getStyleClass().add("combat-container");

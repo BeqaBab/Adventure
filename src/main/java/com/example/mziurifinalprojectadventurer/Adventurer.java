@@ -3,6 +3,7 @@ package com.example.mziurifinalprojectadventurer;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 public class Adventurer {
     private String name;
@@ -17,6 +18,7 @@ public class Adventurer {
     private int weaponId;
     private int defeatedMonsters;
     private Weapon currentWeapon;
+    private double critChance;
 
     public Adventurer() {
         this.level = 1;
@@ -27,6 +29,9 @@ public class Adventurer {
         this.currentWeapon = new Weapon();
     }
 
+    public double getCritChance() {
+        return critChance;
+    }
     public int getWeaponId() { return weaponId; }
     public void setWeaponId(int weaponId) { this.weaponId = weaponId; }
     public int getMaxHp() { return maxHp; }
@@ -42,6 +47,9 @@ public class Adventurer {
         return defeatedMonsters;
     }
 
+    public void setCritChance(double critChance) {
+        this.critChance = critChance;
+    }
     public void defeatMonster(){this.defeatedMonsters++;}
     public void setName(String name) { this.name = name; }
     public void setAdventurerClass(String adventurerClass) { this.adventurerClass = adventurerClass; }
@@ -51,12 +59,26 @@ public class Adventurer {
     public void setBasicPotions(int basicPotions) { this.basicPotions = basicPotions; }
     public void setMaxPotions(int maxPotions) { this.maxPotions = maxPotions; }
     public void setMaxHp(int maxHp) { this.maxHp = maxHp; }
+    public void setDefeatedMonsters(int defeatedMonsters) {
+        this.defeatedMonsters = defeatedMonsters;
+    }
 
     public void setCurrentWeapon(Weapon weapon) {
         this.currentWeapon = weapon;
         if (weapon != null) {
             this.weaponId = weapon.getId();
         }
+    }
+
+    public int calculateDamage() {
+        Random random = new Random();
+        double rand = random.nextDouble();
+        System.out.println(rand);
+        System.out.println(critChance);
+        if (rand < critChance) {
+            return (int)(getCurrentWeapon().getDamage() * 1.5);
+        }
+        return getCurrentWeapon().getDamage();
     }
 
     public void checkAndUpgradeWeapon(BaseConnection baseConnection) throws SQLException {

@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -29,7 +30,7 @@ public class Game extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException{
+    public void start(Stage primaryStage) throws IOException, SQLException {
         String url = "jdbc:postgresql://localhost:5432/Adventure";
         String user = "postgres";
         String password = Initiate();
