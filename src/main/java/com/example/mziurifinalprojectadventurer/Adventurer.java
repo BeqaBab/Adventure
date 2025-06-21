@@ -42,6 +42,7 @@ public class Adventurer {
         return defeatedMonsters;
     }
 
+    public void defeatMonster(){this.defeatedMonsters++;}
     public void setName(String name) { this.name = name; }
     public void setAdventurerClass(String adventurerClass) { this.adventurerClass = adventurerClass; }
     public void setLevel(int level) { this.level = level; }
@@ -50,9 +51,6 @@ public class Adventurer {
     public void setBasicPotions(int basicPotions) { this.basicPotions = basicPotions; }
     public void setMaxPotions(int maxPotions) { this.maxPotions = maxPotions; }
     public void setMaxHp(int maxHp) { this.maxHp = maxHp; }
-    public void setDefeatedMonsters(int defeatedMonsters) {
-        this.defeatedMonsters = defeatedMonsters;
-    }
 
     public void setCurrentWeapon(Weapon weapon) {
         this.currentWeapon = weapon;
