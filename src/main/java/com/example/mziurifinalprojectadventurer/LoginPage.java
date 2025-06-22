@@ -87,7 +87,6 @@ public class LoginPage {
             currentAdventurer.setCurrentWeapon(baseConnection.getWeaponById(currentAdventurer.getWeaponId()));
             Gameplay gameplay = new Gameplay(baseConnection, primaryStage, currentAdventurer);
             gameplay.Game();
-            currentAdventurer.checkAndUpgradeWeapon(baseConnection);
         }
     }
 
@@ -107,7 +106,9 @@ public class LoginPage {
         Label loginUserLabel = new Label("Name:");
         Label loginClassLabel = new Label("Class:");
         Label loginPasswordLabel = new Label("Password:");
+        Label loginClassInfoLabel = new Label("Your class affects early game buffs, weapon assortment and maximum health points");
         loginMessageLabel = new Label();
+        loginClassInfoLabel.setId("ClassInfoLabel");
 
         loginNameField = new TextField();
         loginPasswordField = new PasswordField();
@@ -116,11 +117,11 @@ public class LoginPage {
         loginClassChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(classes));
 
         Button loginButton = new Button("Login");
-        loginButton.setOnAction(e -> handleLoginAction());
+        loginButton.setOnAction(_ -> handleLoginAction());
 
         Label registrationSuggestionLabel = new Label("Don't have an account?");
         Button switchToRegisterButton = new Button("Register here");
-        switchToRegisterButton.setOnAction(e -> handleSwitchToRegister());
+        switchToRegisterButton.setOnAction(_ -> handleSwitchToRegister());
 
         VBox loginRoot = new VBox(10);
         loginRoot.getStyleClass().add("vbox");
@@ -128,7 +129,7 @@ public class LoginPage {
                 loginUserLabel, loginNameField,
                 loginClassLabel, loginClassChoiceBox,
                 loginPasswordLabel, loginPasswordField,
-                loginMessageLabel, loginButton,
+                loginClassInfoLabel, loginMessageLabel, loginButton,
                 registrationSuggestionLabel, switchToRegisterButton
         );
         loginRoot.setPadding(new Insets(20, 20, 20, 20));
@@ -140,7 +141,10 @@ public class LoginPage {
         Label registrationUserLabel = new Label("Name:");
         Label registrationClassLabel = new Label("Class:");
         Label registrationPasswordLabel = new Label("Password:");
+        Label registrationClassInfoLabel = new Label("Your class affects early game buffs, weapon assortment and maximum health points");
         registrationMessageLabel = new Label();
+
+        registrationClassInfoLabel.setId("ClassInfoLabel");
 
         registrationNameField = new TextField();
         registrationPasswordField = new PasswordField();
@@ -149,11 +153,11 @@ public class LoginPage {
         registrationClassChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(classes));
 
         Button registerButton = new Button("Register");
-        registerButton.setOnAction(e -> handleRegisterAction());
+        registerButton.setOnAction(_ -> register());
 
         Label loginSuggestionLabel = new Label("Already have an account?");
         Button switchToLoginButton = new Button("Login here");
-        switchToLoginButton.setOnAction(e -> handleSwitchToLogin());
+        switchToLoginButton.setOnAction(_ -> handleSwitchToLogin());
 
         VBox registerRoot = new VBox(10);
         registerRoot.getStyleClass().add("vbox");
@@ -161,7 +165,7 @@ public class LoginPage {
                 registrationUserLabel, registrationNameField,
                 registrationClassLabel, registrationClassChoiceBox,
                 registrationPasswordLabel, registrationPasswordField,
-                registrationMessageLabel, registerButton,
+                registrationClassInfoLabel, registrationMessageLabel, registerButton,
                 loginSuggestionLabel, switchToLoginButton
         );
         registerRoot.setPadding(new Insets(20, 20, 20, 20));
@@ -174,10 +178,6 @@ public class LoginPage {
         Scene mainScene = new Scene(currentRoot, 700, 600);
         mainScene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("Adventure_login.css")).toExternalForm());
         primaryStage.setScene(mainScene);
-    }
-
-    private void handleRegisterAction(){
-        register();
     }
 
     private void handleLoginAction(){
@@ -211,13 +211,15 @@ public class LoginPage {
         Label loginUserLabel = new Label("Name:");
         Label loginClassLabel = new Label("Class:");
         Label loginPasswordLabel = new Label("Password:");
+        Label loginClassInfoLabel = new Label("Your class affects early game buffs, weapon assortment and maximum health points");
+        loginClassInfoLabel.setId("ClassInfoLabel");
 
         Label registrationSuggestionLabel = new Label("Don't have an account?");
         Button switchToRegisterButton = new Button("Register here");
-        switchToRegisterButton.setOnAction(e -> handleSwitchToRegister());
+        switchToRegisterButton.setOnAction(_ -> handleSwitchToRegister());
 
         Button loginButton = new Button("Login");
-        loginButton.setOnAction(e -> handleLoginAction());
+        loginButton.setOnAction(_ -> handleLoginAction());
 
         VBox loginRoot = new VBox(10);
         loginRoot.getStyleClass().add("vbox");
@@ -225,7 +227,7 @@ public class LoginPage {
                 loginUserLabel, loginNameField,
                 loginClassLabel, loginClassChoiceBox,
                 loginPasswordLabel, loginPasswordField,
-                loginMessageLabel, loginButton,
+                loginClassInfoLabel, loginMessageLabel, loginButton,
                 registrationSuggestionLabel, switchToRegisterButton
         );
         loginRoot.setPadding(new Insets(20, 20, 20, 20));
@@ -237,13 +239,15 @@ public class LoginPage {
         Label registrationUserLabel = new Label("Name:");
         Label registrationClassLabel = new Label("Class:");
         Label registrationPasswordLabel = new Label("Password:");
+        Label registrationClassInfoLabel = new Label("Your class affects early game buffs, weapon assortment and maximum health points");
+        registrationClassInfoLabel.setId("ClassInfoLabel");
 
         Label loginSuggestionLabel = new Label("Already have an account?");
         Button switchToLoginButton = new Button("Login here");
-        switchToLoginButton.setOnAction(e -> handleSwitchToLogin());
+        switchToLoginButton.setOnAction(_ -> handleSwitchToLogin());
 
         Button registerButton = new Button("Register");
-        registerButton.setOnAction(e -> handleRegisterAction());
+        registerButton.setOnAction(_ -> register());
 
         VBox registerRoot = new VBox(10);
         registerRoot.getStyleClass().add("vbox");
@@ -251,7 +255,7 @@ public class LoginPage {
                 registrationUserLabel, registrationNameField,
                 registrationClassLabel, registrationClassChoiceBox,
                 registrationPasswordLabel, registrationPasswordField,
-                registrationMessageLabel, registerButton,
+                registrationClassInfoLabel, registrationMessageLabel, registerButton,
                 loginSuggestionLabel, switchToLoginButton
         );
         registerRoot.setPadding(new Insets(20, 20, 20, 20));

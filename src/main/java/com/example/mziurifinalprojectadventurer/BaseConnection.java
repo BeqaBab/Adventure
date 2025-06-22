@@ -27,7 +27,7 @@ public class BaseConnection {
                 stmt.setInt(5, newAdventurer.getMaxHp());
                 stmt.setInt(6, newAdventurer.getBasicPotions());
                 stmt.setInt(7, newAdventurer.getMaxPotions());
-                stmt.setInt(8, (int) newAdventurer.getCritChance());
+                stmt.setDouble(8, newAdventurer.getCritChance());
 
                 if (stmt.executeUpdate() > 0) {
                     handleSuccessfulRegistration(connection, stmt, newAdventurer, registrationMessageLabel);
@@ -45,14 +45,14 @@ public class BaseConnection {
             if (rs.next()) {
                 int id = rs.getInt(1);
                 newAdventurer.setId(id);
-                assignStartingWeapon(connection, id);
+                assignStartingWeapon(connection, id, newAdventurer.getAdventurerClass());
                 registrationMessageLabel.setText("User added successfully!");
             }
         }
     }
 
-    private void assignStartingWeapon(Connection connection, int adventurerId) throws SQLException {
-        List<Weapon> startingWeapons = getWeaponsByLevel(1);
+    private void assignStartingWeapon(Connection connection, int adventurerId, String adventurerClass) throws SQLException {
+        List<Weapon> startingWeapons = getWeaponsByLevel(1, adventurerClass);
         if (!startingWeapons.isEmpty()) {
             String updateQuery = "UPDATE adventurer SET weapon_id = ? WHERE adventurer_id = ?";
             try (PreparedStatement updateStmt = connection.prepareStatement(updateQuery)) {
@@ -87,7 +87,7 @@ public class BaseConnection {
 
     private boolean processLoginValidation(ResultSet rs, long password, Label loginMessageLabel, String userPassword, TextField loginPasswordField) throws SQLException {
         if (!rs.next()) {
-            loginMessageLabel.setText("Account doesn't exist");
+            loginMessageLabel.setText("Account with this name and class doesn't exist");
             loginPasswordField.clear();
             return false;
         }
@@ -151,11 +151,12 @@ public class BaseConnection {
         return null;
     }
 
-    public List<Weapon> getWeaponsByLevel(int level) throws SQLException {
-        String query = "SELECT * FROM weapons WHERE weapon_level_requirement <= ? ORDER BY weapon_damage";
+    public List<Weapon> getWeaponsByLevel(int level, String adventurerClass) throws SQLException {
+        String query = "SELECT * FROM weapons WHERE weapon_level_requirement <= ? AND weapon_class = ? ORDER BY weapon_damage";
         List<Weapon> weapons = new ArrayList<>();
         try (PreparedStatement stmt = connection.prepareStatement(query)) {
             stmt.setInt(1, level);
+            stmt.setString(2, adventurerClass);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     weapons.add(createWeaponFromResultSet(rs));

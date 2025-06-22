@@ -46,6 +46,9 @@ public class Adventurer {
     public int getDefeatedMonsters() {
         return defeatedMonsters;
     }
+    public String getAdventurerClass() {
+        return adventurerClass;
+    }
 
     public void setCritChance(double critChance) {
         this.critChance = critChance;
@@ -72,17 +75,14 @@ public class Adventurer {
 
     public int calculateDamage() {
         Random random = new Random();
-        double rand = random.nextDouble();
-        System.out.println(rand);
-        System.out.println(critChance);
-        if (rand < critChance) {
+        if (random.nextDouble() < critChance) {
             return (int)(getCurrentWeapon().getDamage() * 1.5);
         }
         return getCurrentWeapon().getDamage();
     }
 
     public void checkAndUpgradeWeapon(BaseConnection baseConnection) throws SQLException {
-        List<Weapon> availableWeapons = baseConnection.getWeaponsByLevel(this.level);
+        List<Weapon> availableWeapons = baseConnection.getWeaponsByLevel(this.level, adventurerClass);
         Weapon bestWeapon = availableWeapons.stream()
                 .max(Comparator.comparingInt(Weapon::getDamage))
                 .orElse(currentWeapon);

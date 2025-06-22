@@ -12,14 +12,12 @@ import javafx.stage.Stage;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.*;
 import java.util.Objects;
 import java.util.Random;
 
 public class Gameplay {
     private Stage primaryStage;
     private Adventurer currentAdventurer;
-    private Random random = new Random();
     private Label damageLabel = new Label();
     private Label adventurerLabel = new Label();
     private Label currentMonsterShortLabel = new Label();
@@ -163,10 +161,10 @@ public class Gameplay {
     }
 
     private void setupButtonActions(Enemy[] currentEnemy, StackPane centerContainer) {
-        runButton.setOnAction(e -> handleRunButtonAction());
-        attackButton.setOnAction(e -> handleAttackButtonAction(currentEnemy, centerContainer));
-        showEnemyInfoButton.setOnAction(e -> handleShowEnemyInfoButtonAction(currentEnemy[0], centerContainer));
-        useAnItemButton.setOnAction(e -> handleUseItemButtonAction(centerContainer));
+        runButton.setOnAction(_ -> handleRunButtonAction());
+        attackButton.setOnAction(_ -> handleAttackButtonAction(currentEnemy, centerContainer));
+        showEnemyInfoButton.setOnAction(_ -> handleShowEnemyInfoButtonAction(currentEnemy[0], centerContainer));
+        useAnItemButton.setOnAction(_ -> handleUseItemButtonAction(centerContainer));
     }
 
     private void handleRunButtonAction() {
@@ -176,7 +174,7 @@ public class Gameplay {
         giveUpLabel.setId("giveUpLabel");
         Button returnToMenuButton = new Button("🏠 Return to Menu");
         returnToMenuButton.setId("returnToMenuButton");
-        returnToMenuButton.setOnAction(actionEvent -> returnToStartingPage());
+        returnToMenuButton.setOnAction(_ -> returnToStartingPage());
 
         Button seeRunInfoButton = getButton("flee");
 
@@ -218,7 +216,7 @@ public class Gameplay {
 
         Button returnToMenuButton = new Button("🏠 Return to Menu");
         returnToMenuButton.setId("returnToMenuButton");
-        returnToMenuButton.setOnAction(actionEvent -> returnToStartingPage());
+        returnToMenuButton.setOnAction(_ -> returnToStartingPage());
 
         VBox loseLayout = new VBox(15);
         loseLayout.getStyleClass().add("combat-container");
@@ -245,7 +243,7 @@ public class Gameplay {
 
         Button continueButton = new Button("Continue Adventure →");
         continueButton.setId("continueButton");
-        continueButton.setOnAction(actionEvent -> primaryStage.getScene().setRoot(centerContainer));
+        continueButton.setOnAction(_ -> primaryStage.getScene().setRoot(centerContainer));
 
         VBox winLayout = new VBox(15);
         winLayout.getStyleClass().add("combat-container");
@@ -264,7 +262,7 @@ public class Gameplay {
 
         Button backButton = new Button("← Back to Combat");
         backButton.setId("backButton");
-        backButton.setOnAction(action -> primaryStage.getScene().setRoot(centerContainer));
+        backButton.setOnAction(_ -> primaryStage.getScene().setRoot(centerContainer));
 
         VBox infoLayout = new VBox(15);
         infoLayout.getStyleClass().add("combat-container");
@@ -288,13 +286,18 @@ public class Gameplay {
 
     private void initializePotionLabels() {
         potionInfoLabel.setText("Remaining potions:");
+        potionInfoLabel.setId("infoLabel");
+
         basicPotionLabel.setText("Basic Potions: " + currentAdventurer.getBasicPotions());
+        basicPotionLabel.setId("infoLabel");
+
         maxPotionLabel.setText("Max Potions: " + currentAdventurer.getMaxPotions());
+        maxPotionLabel.setId("infoLabel");
     }
 
     private Button createBasicPotionButton() {
         Button button = new Button("Use Basic Potion");
-        button.setOnAction(action -> {
+        button.setOnAction(_ -> {
             if (currentAdventurer.getBasicPotions() > 0 && currentAdventurer.getHp() < currentAdventurer.getMaxHp()) {
                 currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() - 1);
                 basicPotionLabel.setText("Basic Potions: " + currentAdventurer.getBasicPotions());
@@ -310,7 +313,7 @@ public class Gameplay {
 
     private Button createMaxPotionButton() {
         Button button = new Button("Use Max Potion");
-        button.setOnAction(action -> {
+        button.setOnAction(_ -> {
             if (currentAdventurer.getMaxPotions() > 0 && currentAdventurer.getHp() < currentAdventurer.getMaxHp()) {
                 currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() - 1);
                 maxPotionLabel.setText("Max Potions: " + currentAdventurer.getMaxPotions());
@@ -327,12 +330,13 @@ public class Gameplay {
     private Button createBackButton(StackPane centerContainer) {
         Button button = new Button("← Back to Combat");
         button.setId("backButton");
-        button.setOnAction(action -> primaryStage.getScene().setRoot(centerContainer));
+        button.setOnAction(_ -> primaryStage.getScene().setRoot(centerContainer));
         return button;
     }
 
     private void setupPotionUI(Button useBasicPotionButton, Button useMaxPotionButton, Button backButton) {
         VBox itemLayout = new VBox(15);
+        itemLayout.getStyleClass().add("combat-container");
         itemLayout.setAlignment(Pos.CENTER);
         itemLayout.getChildren().addAll(
                 potionInfoLabel,
@@ -352,7 +356,7 @@ public class Gameplay {
     @NotNull
     private Button getButton(String context) {
         Button seeRunInfoButton = new Button("See your run info");
-        seeRunInfoButton.setOnAction(actionEvent -> showRunInfoScreen(context));
+        seeRunInfoButton.setOnAction(_ -> showRunInfoScreen(context));
         return seeRunInfoButton;
     }
 
@@ -362,7 +366,7 @@ public class Gameplay {
 
         Button backButton = new Button("← Back");
         backButton.setId("backButton");
-        backButton.setOnAction(e -> handleBackAction(context));
+        backButton.setOnAction(_ -> handleBackAction(context));
 
         VBox runInfoLayout = new VBox(15);
         runInfoLayout.getStyleClass().add("combat-container");
@@ -415,7 +419,7 @@ public class Gameplay {
     private Button createReturnToMenuButton() {
         Button returnToMenuButton = new Button("🏠 Return to Menu");
         returnToMenuButton.setId("returnToMenuButton");
-        returnToMenuButton.setOnAction(action -> returnToStartingPage());
+        returnToMenuButton.setOnAction(_ -> returnToStartingPage());
         return returnToMenuButton;
     }
 

@@ -102,6 +102,11 @@
     -fx-border-color: -fx-highlight;
 }
 
+#ClassInfoLabel{
+    -fx-font-size: 13px;
+    -fx-text-fill: #f7f023
+}
+
 /* Login button specific styling */
 #loginButton {
     -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #4a148c, #311b92);
