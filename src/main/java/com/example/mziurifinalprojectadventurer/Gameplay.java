@@ -28,6 +28,7 @@ public class Gameplay {
     private Label potionInfoLabel = new Label();
     private Label basicPotionLabel = new Label();
     private Label maxPotionLabel = new Label();
+    private final Button playerInfoButton = new Button("🔍 Player Info");
     private final Button attackButton = new Button("⚔ Attack");
     private final Button showEnemyInfoButton = new Button("🔍 Enemy Info");
     private final Button useAnItemButton = new Button("Use Item");
@@ -155,11 +156,12 @@ public class Gameplay {
     private HBox createSecondaryActions() {
         HBox secondaryActions = new HBox(10);
         secondaryActions.setAlignment(Pos.CENTER);
-        secondaryActions.getChildren().addAll(showEnemyInfoButton, runButton);
+        secondaryActions.getChildren().addAll(showEnemyInfoButton, playerInfoButton, runButton);
         return secondaryActions;
     }
 
     private void setupButtonActions(Enemy[] currentEnemy, StackPane centerContainer) {
+        playerInfoButton.setOnAction(_ -> handleShowPlayerInfoButton(centerContainer));
         runButton.setOnAction(_ -> handleRunButtonAction());
         attackButton.setOnAction(_ -> handleAttackButtonAction(currentEnemy, centerContainer));
         showEnemyInfoButton.setOnAction(_ -> handleShowEnemyInfoButtonAction(currentEnemy[0], centerContainer));
@@ -254,6 +256,25 @@ public class Gameplay {
         winContainer.setAlignment(Pos.CENTER);
 
         primaryStage.getScene().setRoot(winContainer);
+    }
+
+    private void handleShowPlayerInfoButton(StackPane centerContainer) {
+        infoLabel.setText(currentAdventurer.toString());
+        infoLabel.setId("infoLabel");
+
+        Button backButton = new Button("← Back to Combat");
+        backButton.setId("backButton");
+        backButton.setOnAction(_ -> primaryStage.getScene().setRoot(centerContainer));
+
+        VBox infoLayout = new VBox(15);
+        infoLayout.getStyleClass().add("combat-container");
+        infoLayout.getChildren().addAll(infoLabel, backButton);
+
+        StackPane infoContainer = new StackPane();
+        infoContainer.getChildren().add(infoLayout);
+        infoContainer.setAlignment(Pos.CENTER);
+
+        primaryStage.getScene().setRoot(infoContainer);
     }
 
     private void handleShowEnemyInfoButtonAction(@NotNull Enemy enemy, StackPane centerContainer) {

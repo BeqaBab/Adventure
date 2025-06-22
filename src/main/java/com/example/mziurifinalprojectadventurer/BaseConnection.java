@@ -18,7 +18,7 @@ public class BaseConnection {
 
     public void newAccount(String username, String adventurerClass, Adventurer newAdventurer, long password, Label registrationMessageLabel) {
         try{
-            String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_HP, adventurer_class, adventurer_password, max_health, basic_potions, max_potions, crit_chance) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+            String insertQuery = "INSERT INTO adventurer(adventurer_name, adventurer_HP, adventurer_class, adventurer_password, max_health, basic_potions, max_potions, crit_chance, adventurer_exp, adventurer_level, defeated_monsters) VALUES(?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 0)";
             try (PreparedStatement stmt = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, username);
                 stmt.setInt(2, newAdventurer.getMaxHp());
