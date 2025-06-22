@@ -13,7 +13,6 @@ import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
-import java.util.Random;
 
 public class Gameplay {
     private Stage primaryStage;
@@ -197,15 +196,16 @@ public class Gameplay {
         currentEnemy[0].setHp(currentEnemy[0].getHp() - damage);
         currentAdventurer.setHp(currentAdventurer.getHp() - currentEnemy[0].getDamage());
 
+        currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
+        damageLabel.setText("⚔ " + weapon.getName() + " dealt: " + damage + (damage > weapon.getDamage() ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
+        adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + weapon.getName());
+
         if(currentAdventurer.getHp() <= 0){
             handleDefeat();
         } else if(currentEnemy[0].getHp() <= 0){
             handleVictory(currentEnemy, centerContainer);
+            damageLabel.setText("Combat will begin when you attack!");
         }
-
-        currentMonsterShortLabel.setText(currentEnemy[0].getName() + " | HP: " + currentEnemy[0].getHp());
-        damageLabel.setText("⚔ " + weapon.getName() + " dealt: " + damage + (damage > weapon.getDamage() ? " CRITICAL!" : "") + "\n💥 You took: " + currentEnemy[0].getDamage() + " damage");
-        adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + weapon.getName());
     }
 
     private void handleDefeat() {
