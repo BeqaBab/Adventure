@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Random;
 
 public class BaseConnection {
-    private Connection connection;
+    private final Connection connection;
 
     public BaseConnection(String url, String user,String password) throws SQLException {
         connection = DriverManager.getConnection(url, user, password);

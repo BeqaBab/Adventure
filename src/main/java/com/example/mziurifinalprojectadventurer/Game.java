@@ -37,7 +37,7 @@ public class Game extends Application {
         BaseConnection baseConnection = new BaseConnection(url, user, password);
         Button authorisationButton = new Button("Start to play");
         LoginPage loginPage = new LoginPage(baseConnection, primaryStage);
-        authorisationButton.setOnAction(e -> {
+        authorisationButton.setOnAction(_ -> {
             loginPage.authorisation();
             primaryStage.setTitle("Authorisation page");
         });
