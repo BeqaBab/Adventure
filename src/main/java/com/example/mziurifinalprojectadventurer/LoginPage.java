@@ -91,7 +91,7 @@ public class LoginPage {
     }
 
     public static long hash(@NotNull String s){
-        final int p = 31;
+        final int p = 53;
         final int m = 100000009;
         long hashValue = 0;
         long p_pow = 1;
@@ -105,7 +105,7 @@ public class LoginPage {
     private void initializeLoginComponents() {
         Label loginUserLabel = new Label("Name:");
         Label loginClassLabel = new Label("Class:");
-        Label loginPasswordLabel = new Label("Password:");
+        Label loginPasswordLabel = new Label("Password (only letters):");
         Label loginClassInfoLabel = new Label("Your class affects early game buffs, weapon assortment and maximum health points");
         loginMessageLabel = new Label();
         loginClassInfoLabel.setId("ClassInfoLabel");
@@ -140,7 +140,7 @@ public class LoginPage {
     private void initializeRegistrationComponents() {
         Label registrationUserLabel = new Label("Name:");
         Label registrationClassLabel = new Label("Class:");
-        Label registrationPasswordLabel = new Label("Password:");
+        Label registrationPasswordLabel = new Label("Password (only letters):");
         Label registrationClassInfoLabel = new Label("Your class affects early game buffs, weapon assortment and maximum health points");
         registrationMessageLabel = new Label();
 
@@ -210,7 +210,7 @@ public class LoginPage {
     private VBox createLoginRoot() {
         Label loginUserLabel = new Label("Name:");
         Label loginClassLabel = new Label("Class:");
-        Label loginPasswordLabel = new Label("Password:");
+        Label loginPasswordLabel = new Label("Password (only letters):");
         Label loginClassInfoLabel = new Label("Your class affects early game buffs, weapon assortment and maximum health points");
         loginClassInfoLabel.setId("ClassInfoLabel");
 
@@ -238,7 +238,7 @@ public class LoginPage {
     private VBox createRegisterRoot() {
         Label registrationUserLabel = new Label("Name:");
         Label registrationClassLabel = new Label("Class:");
-        Label registrationPasswordLabel = new Label("Password:");
+        Label registrationPasswordLabel = new Label("Password (only letters):");
         Label registrationClassInfoLabel = new Label("Your class affects early game buffs, weapon assortment and maximum health points");
         registrationClassInfoLabel.setId("ClassInfoLabel");
 

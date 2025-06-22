@@ -28,10 +28,10 @@ public class Gameplay {
     private Label potionInfoLabel = new Label();
     private Label basicPotionLabel = new Label();
     private Label maxPotionLabel = new Label();
-    private Button attackButton = new Button("⚔ Attack");
-    private Button showEnemyInfoButton = new Button("🔍 Enemy Info");
-    private Button useAnItemButton = new Button("Use Item");
-    private Button runButton = new Button("🏃 Flee");
+    private final Button attackButton = new Button("⚔ Attack");
+    private final Button showEnemyInfoButton = new Button("🔍 Enemy Info");
+    private final Button useAnItemButton = new Button("Use Item");
+    private final Button runButton = new Button("🏃 Flee");
     private final BaseConnection baseConnection;
 
     public Gameplay(BaseConnection baseConnection, Stage primaryStage, Adventurer currentAdventurer){
