@@ -53,7 +53,7 @@ public class Adventurer {
     public void setCritChance(double critChance) {
         this.critChance = critChance;
     }
-    public void defeatMonster(){this.defeatedMonsters++;}
+    public void defeatMonster(){ if(this.defeatedMonsters < 100000) this.defeatedMonsters++;}
     public void setName(String name) { this.name = name; }
     public void setAdventurerClass(String adventurerClass) { this.adventurerClass = adventurerClass; }
     public void setLevel(int level) { this.level = level; }

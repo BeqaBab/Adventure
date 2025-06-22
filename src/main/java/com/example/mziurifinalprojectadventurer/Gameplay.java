@@ -52,16 +52,16 @@ public class Gameplay {
             }
 
             if (levelsGained > 0) {
-                currentAdventurer.setLevel(currentAdventurer.getLevel() + levelsGained);
+                currentAdventurer.setLevel(regulatedAdd(currentAdventurer.getLevel(), levelsGained));
                 int hpIncrease = levelsGained * 10;
-                currentAdventurer.setHp(currentAdventurer.getHp() + hpIncrease);
-                currentAdventurer.setMaxHp(currentAdventurer.getMaxHp() + hpIncrease);
+                currentAdventurer.setHp(regulatedAdd(currentAdventurer.getHp(), hpIncrease));
+                currentAdventurer.setMaxHp(regulatedAdd(currentAdventurer.getMaxHp(), hpIncrease));
             }
 
             currentAdventurer.setExp(newExp);
 
-            currentAdventurer.setBasicPotions(currentAdventurer.getBasicPotions() + currentEnemy.getDropBasic());
-            currentAdventurer.setMaxPotions(currentAdventurer.getMaxPotions() + currentEnemy.getDropMax());
+            currentAdventurer.setBasicPotions(regulatedAdd(currentAdventurer.getBasicPotions(), currentEnemy.getDropBasic()));
+            currentAdventurer.setMaxPotions(regulatedAdd(currentAdventurer.getMaxPotions(), currentEnemy.getDropMax()));
 
             currentAdventurer.checkAndUpgradeWeapon(baseConnection);
             adventurerLabel.setText("HP: " + currentAdventurer.getHp() + " | Weapon: " + currentAdventurer.getCurrentWeapon().getName());
@@ -456,5 +456,9 @@ public class Gameplay {
         container.getChildren().add(layout);
         container.setAlignment(Pos.CENTER);
         return container;
+    }
+
+    private static int regulatedAdd(int value, int increment) {
+        return Math.min(value + increment, 100000);
     }
 }
